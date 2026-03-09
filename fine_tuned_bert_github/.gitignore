@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.tmp.csv
+*.log
+srn_cls_model/ckpts/
+srn_cls_model/model.safetensors
+srn_cls_model/optimizer.pt
+outputs/
