@@ -1,5 +1,0 @@
-Aggregation,Mean PCI,Median PCI,Trimmed Mean,Wt. Mean
-Mean PCI (primary),1.0,,,
-Median PCI,0.622,1.0,,
-Trimmed Mean (5%),0.982,0.976,1.0,
-Length-Weighted Mean,0.968,0.954,0.963,1.0

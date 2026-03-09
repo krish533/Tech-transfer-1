@@ -1,6 +1,0 @@
-Measure,r with PCI,p-value,N
-  Tone Index,0.445,0.0000,2513
-  Clarity Index,0.056,0.0046,2525
-  Legal Load Index,0.227,0.0000,2525
-  Flesch Reading Ease,0.312,<0.001,393 (paper)
-  Gunning-Fog Index,-0.287,<0.001,393 (paper)
