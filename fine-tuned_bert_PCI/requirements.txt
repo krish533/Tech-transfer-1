@@ -1,5 +1,0 @@
-pandas>=2.0
-numpy>=1.24
-torch>=2.0
-transformers>=4.35
-openpyxl>=3.1

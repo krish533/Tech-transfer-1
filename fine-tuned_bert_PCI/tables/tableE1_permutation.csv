@@ -1,0 +1,3 @@
+Comparison,Observed Gap,Perm. p-value,N Permutations
+Private R1 vs. Public R1,0.0304,0.008,1000
+Med School vs. No Med School,0.0166,0.184,1000
