@@ -1,0 +1,12 @@
+{
+  "label2id": {
+    "restrictive": 0,
+    "neutral": 1,
+    "supportive": 2
+  },
+  "id2label": {
+    "0": "restrictive",
+    "1": "neutral",
+    "2": "supportive"
+  }
+}

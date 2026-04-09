@@ -1,0 +1,7 @@
+{
+  "temperature": 0.8461815715,
+  "source": "learned from labeled_training_with_scores_cleaned.csv",
+  "calib_text_col": "Sentence",
+  "calib_label_col": "Label_Text",
+  "calib_max_samples": 500
+}
