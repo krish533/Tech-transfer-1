@@ -1,3 +1,0 @@
-Table 5 mean=0.428 median=0.422 N=480 institutions=149
-Table 6 cross-sectional sample=149 institutions
-Table 9 R2=0.126 N=480

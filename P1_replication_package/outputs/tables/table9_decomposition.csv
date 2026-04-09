@@ -1,6 +1,0 @@
-Variable,Model 1,SE 1,Model 2,SE 2,Model 3,SE 3
-Tone Index,0.039***,(0.014),0.037***,(0.014),0.037***,(0.013)
-Clarity Index,,,0.007,(0.006),0.010*,(0.006)
-Legal Load Index,,,,,0.012**,(0.005)
-R^2,0.105,,0.110,,0.126,
-Observations,480,,480,,480,
