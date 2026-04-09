@@ -47,8 +47,9 @@ def main() -> None:
         ],
         check=True,
     )
+    subprocess.run([sys.executable, str(scripts_dir / "04_generate_paper_outputs.py")], check=True)
 
-    print("Minimal replication package run completed.")
+    print("Replication package run completed.")
 
 
 if __name__ == "__main__":

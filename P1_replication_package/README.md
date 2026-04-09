@@ -6,6 +6,11 @@ This folder is the replication package for Paper 1. It is organized around the t
 2. `data/derived/sentence_scores_canonical.csv`
 3. `data/derived/policy_level_indices_institution_year.csv`
 
+The package also includes:
+
+4. `data/derived/institution_metadata.csv`
+5. manuscript-facing figures and tables under `outputs/`
+
 The sentence-level NLP model is already trained. The annotation/training information is incorporated into the released model weights. To reproduce sentence-level inference exactly, this package uses the released fine-tuned model together with the fixed temperature-scaling value stored in:
 
 - `model/srn_cls_model/temperature_scaling.json`
@@ -37,6 +42,16 @@ This contains the fine-tuned BERT classifier used for sentence scoring. The mode
 ### Final outputs
 - `data/derived/sentence_scores_canonical.csv`
 - `data/derived/policy_level_indices_institution_year.csv`
+- `data/derived/institution_metadata.csv`
+
+### Paper outputs
+- `outputs/figures/`
+- `outputs/tables/`
+- `outputs/appendix/`
+
+These files are generated directly from the released institution-year indices and the
+matched institution metadata companion file. They cover the manuscript figures and
+tables that are derived from the policy-level indices and sub-indices.
 
 ## Pipeline overview
 
@@ -131,6 +146,34 @@ Interpretation:
 - `Mean_Tone_Score` and `Median_Tone_Score` are based on the BERT sentence scores
 - `Tone_Index`, `Clarity_Index`, and `Legal_Load_Index` are lexicon- and feature-based companion indices computed from the same scored sentence corpus
 
+### Step 7. Add institution metadata for cross-sectional outputs
+
+Some manuscript figures and tables require institution descriptors such as state,
+public/private status, Carnegie R1 status, medical-school indicator, urbanicity, and
+land-grant status. Those fields are stored in:
+
+- `data/derived/institution_metadata.csv`
+
+This metadata companion file is aligned to the 149 institutions in the released
+institution-year index.
+
+### Step 8. Generate manuscript-facing outputs
+
+The package includes:
+
+- `scripts/04_generate_paper_outputs.py`
+
+This script regenerates the figures and tables that are directly derived from the
+institution-year indices and sub-indices, including:
+
+- descriptive PCI summary outputs
+- cross-sectional heterogeneity outputs
+- decomposition outputs
+- quintile profile outputs
+- temporal trend outputs
+- legal-load over-time outputs
+- ranking/reference outputs
+
 ## Validation
 
 The released inference pipeline was checked against the existing internal scored reference.
@@ -160,6 +203,9 @@ This rebuilds:
 
 - `data/derived/sentence_scores_canonical.csv`
 - `data/derived/policy_level_indices_institution_year.csv`
+- `outputs/figures/*`
+- `outputs/tables/*`
+- `outputs/appendix/*`
 
 Intermediate rerun files are written under:
 
