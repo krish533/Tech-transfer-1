@@ -59,6 +59,7 @@ META_COLS = [
     "Med",
     "LG",
 ]
+PANEL_END_YEAR = 2025
 
 
 def institution_type(private_value, r1_value) -> str:
@@ -210,6 +211,34 @@ def aggregate_institution_year(df: pd.DataFrame) -> pd.DataFrame:
     return panel
 
 
+def build_policy_in_force_panel(observed_panel: pd.DataFrame, end_year: int = PANEL_END_YEAR) -> pd.DataFrame:
+    observed_panel = observed_panel.sort_values(["Institution", "Year"]).copy()
+    observed_panel["Source_Year"] = observed_panel["Year"]
+    filled_panels = []
+
+    for inst, g in observed_panel.groupby("Institution", sort=False):
+        g = g.sort_values("Year").copy()
+        start_year = int(g["Year"].min())
+        if start_year > end_year:
+            continue
+        panel_years = pd.DataFrame({"Year": list(range(start_year, end_year + 1))})
+        merged = panel_years.merge(g, on="Year", how="left")
+        merged["Institution"] = inst
+
+        fill_cols = [c for c in merged.columns if c not in {"Institution", "Year"}]
+        merged[fill_cols] = merged[fill_cols].ffill()
+        merged = merged[merged["Source_Year"].notna()].copy()
+        merged["Is_Carried_Forward"] = (merged["Year"] != merged["Source_Year"]).astype(int)
+        merged["Institution_Year_Key"] = merged["Institution"].astype(str) + " || " + merged["Year"].astype(int).astype(str)
+        filled_panels.append(merged)
+
+    if not filled_panels:
+        return observed_panel.iloc[0:0].copy()
+
+    panel = pd.concat(filled_panels, ignore_index=True)
+    return panel.sort_values(["Institution", "Year"]).reset_index(drop=True)
+
+
 def extract_metadata(df: pd.DataFrame, metadata_path: Path | None) -> pd.DataFrame:
     available = [col for col in META_COLS if col in df.columns]
     if available:
@@ -248,11 +277,12 @@ def main() -> None:
     rerun = pd.read_csv(args.rerun_file, low_memory=False)
     dedup = rerun.drop_duplicates(subset=KEY_COLS, keep="first").copy()
     dedup = add_sentence_features(dedup)
-    inst_year_panel = aggregate_institution_year(dedup)
+    observed_inst_year_panel = aggregate_institution_year(dedup)
     metadata_path = Path(args.metadata_file) if args.metadata_file else None
     metadata = extract_metadata(dedup, metadata_path)
     if not metadata.empty:
-        inst_year_panel = inst_year_panel.merge(metadata, on="Institution", how="left", validate="many_to_one")
+        observed_inst_year_panel = observed_inst_year_panel.merge(metadata, on="Institution", how="left", validate="many_to_one")
+    inst_year_panel = build_policy_in_force_panel(observed_inst_year_panel, end_year=PANEL_END_YEAR)
 
     sentence_keep_cols = [
         "Institution",
@@ -283,6 +313,8 @@ def main() -> None:
         "Institution_Year_Key",
         "Institution",
         "Year",
+        "Source_Year",
+        "Is_Carried_Forward",
         "STATE",
         "Private",
         "Carnegie R1",
@@ -330,7 +362,8 @@ def main() -> None:
         "sentence_rows_raw": int(len(rerun)),
         "sentence_rows_canonical": int(len(dedup)),
         "institutions": int(dedup["Institution"].nunique()),
-        "institution_years": int(dedup[["Institution", "Year"]].drop_duplicates().shape[0]),
+        "observed_institution_years": int(observed_inst_year_panel[["Institution", "Year"]].drop_duplicates().shape[0]),
+        "panel_institution_years": int(inst_year_panel[["Institution", "Year"]].drop_duplicates().shape[0]),
         "policy_documents_observed": int(dedup[["Institution", "Year", "File"]].drop_duplicates().shape[0]),
     }
     print(summary)

@@ -1,0 +1,6 @@
+Measure,Correlation with PCI,p-value,N
+Tone Index,+0.395,<0.001,4296
+Clarity Index,+0.016,0.291,4296
+Legal Load Index,+0.158,<0.001,4296
+Flesch Reading Ease,+0.255,<0.001,4296
+Gunning-Fog Index,-0.297,<0.001,4296

@@ -1,8 +1,14 @@
 \documentclass[11pt]{article}
 \usepackage[margin=0.6in]{geometry}
-\usepackage{booktabs,longtable,array,pdflscape}
+\usepackage[table]{xcolor}
+\usepackage{booktabs,longtable,array,colortbl,fancyhdr}
+\setlength{\headheight}{16pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape State \& Local Governance Initiative, Hoover Institution}
+\fancyhead[R]{\small\itshape Communication as Governance}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
 \begin{document}
-\begin{landscape}
 \input{ranking_fragment}
-\end{landscape}
 \end{document}

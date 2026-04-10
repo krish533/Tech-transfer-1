@@ -8,11 +8,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import statsmodels.formula.api as smf
 from scipy.stats import kruskal, mannwhitneyu, pearsonr
+import re
 
 
 PAL = {
@@ -152,30 +154,90 @@ def yn(value) -> str:
     return "Y" if int(float(value)) == 1 else "N"
 
 
+def count_syllables(word: str) -> int:
+    vowels = "aeiouy"
+    w = re.sub(r"[^a-z]", "", str(word).lower())
+    if not w:
+        return 0
+    count = 0
+    prev_is_vowel = False
+    for ch in w:
+        is_vowel = ch in vowels
+        if is_vowel and not prev_is_vowel:
+            count += 1
+        prev_is_vowel = is_vowel
+    if w.endswith("e") and count > 1 and not w.endswith(("le", "ye")):
+        count -= 1
+    return max(count, 1)
+
+
+def readability_stats(texts: pd.Series) -> pd.Series:
+    tokens = []
+    for text in texts.fillna("").astype(str):
+        tokens.extend(re.findall(r"[A-Za-z']+", text))
+    n_sent = len(texts)
+    n_words = len(tokens)
+    if n_sent == 0 or n_words == 0:
+        return pd.Series({"Flesch_Reading_Ease": np.nan, "Gunning_Fog_Index": np.nan})
+    syllables = sum(count_syllables(token) for token in tokens)
+    complex_words = sum(1 for token in tokens if count_syllables(token) >= 3)
+    avg_sentence_length = n_words / n_sent
+    avg_syllables = syllables / n_words
+    flesch = 206.835 - 1.015 * avg_sentence_length - 84.6 * avg_syllables
+    fog = 0.4 * (avg_sentence_length + 100 * (complex_words / n_words))
+    return pd.Series({"Flesch_Reading_Ease": flesch, "Gunning_Fog_Index": fog})
+
+
 def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
     appendix_dir.mkdir(parents=True, exist_ok=True)
+    summary_rows = []
+
+    def add_summary(label: str, frame: pd.DataFrame) -> None:
+        x = frame["Mean_PCI"].dropna()
+        summary_rows.append(
+            {
+                "Group": label,
+                "N": len(frame),
+                "Mean": x.mean(),
+                "SD": x.std(ddof=1),
+                "Min": x.min(),
+                "Max": x.max(),
+                "Share": 100 * x.ge(0.50).mean(),
+            }
+        )
+
+    add_summary("All institutions", ranked)
+    for t in ["Private R1", "Public R1", "Private R2", "Public R2"]:
+        add_summary(t, ranked[ranked["Type"] == t])
+    add_summary("With medical school", ranked[ranked["Med"] == "Y"])
+    add_summary("Without medical school", ranked[ranked["Med"] == "N"])
+    add_summary("Land-grant", ranked[ranked["LG"] == "Y"])
+    add_summary("Non-land-grant", ranked[ranked["LG"] == "N"])
+
     lines = [
-        r"\footnotesize",
-        r"\setlength{\tabcolsep}{3pt}",
-        r"\renewcommand{\arraystretch}{0.96}",
+        r"\scriptsize",
+        r"\rowcolors{2}{gray!10}{white}",
+        r"\setlength{\tabcolsep}{3.2pt}",
+        r"\renewcommand{\arraystretch}{0.98}",
         r"\setlength{\LTcapwidth}{\textwidth}",
-        r"\setlength{\LTleft}{0pt}",
-        r"\setlength{\LTright}{0pt}",
+        r"\setlength{\LTleft}{\fill}",
+        r"\setlength{\LTright}{\fill}",
         "",
-        r"\begin{longtable}{@{}p{4.6cm}>{\centering\arraybackslash}p{0.7cm}>{\centering\arraybackslash}p{1.45cm}>{\centering\arraybackslash}p{0.9cm}>{\centering\arraybackslash}p{0.5cm}>{\centering\arraybackslash}p{1.0cm}>{\centering\arraybackslash}p{1.0cm}>{\centering\arraybackslash}p{0.75cm}>{\centering\arraybackslash}p{0.55cm}>{\centering\arraybackslash}p{0.85cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.85cm}@{}}",
+        r"\begin{longtable}{@{}p{4.00cm}>{\centering\arraybackslash}p{0.62cm}>{\centering\arraybackslash}p{1.35cm}>{\centering\arraybackslash}p{0.58cm}>{\centering\arraybackslash}p{0.42cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.72cm}>{\centering\arraybackslash}p{0.80cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.80cm}@{}}",
         r"\caption{Institution-Level PCI Scores: Full Reference Table}",
         r"\label{tab:inst_pci} \\",
         r"\toprule",
-        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Medical} & \textbf{LG} & \textbf{Mean PCI} & \textbf{Latest PCI} & \textbf{Yr} & \textbf{\textit{N}} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
+        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCI}} & \shortstack{\textbf{Latest}\\\textbf{PCI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{12}{l}{\textit{Table \ref{tab:inst_pci} continued from previous page}} \\",
+        r"\rowcolor{gray!10}",
+        r"\multicolumn{11}{l}{\textit{Table \ref{tab:inst_pci} continued from previous page}} \\",
         r"\toprule",
-        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Medical} & \textbf{LG} & \textbf{Mean PCI} & \textbf{Latest PCI} & \textbf{Yr} & \textbf{\textit{N}} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
+        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCI}} & \shortstack{\textbf{Latest}\\\textbf{PCI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
         r"\midrule",
         r"\endhead",
         r"\midrule",
-        r"\multicolumn{12}{r}{\textit{Continued on next page}} \\",
+        r"\multicolumn{11}{r}{\textit{Continued on next page}} \\",
         r"\endfoot",
         r"\bottomrule",
         r"\endlastfoot",
@@ -189,24 +251,58 @@ def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
             latex_escape(row.LG),
             f"{row.Mean_PCI:.3f}",
             f"{row.Latest_PCI:.3f}",
-            f"{int(row.Latest_Year)}",
             f"{int(row.N)}",
             f"{row.Tone:.2f}",
             f"{row.Clarity:.2f}",
             f"{row.Legal:.2f}",
         ]
         lines.append(" & ".join(cells) + r" \\")
-    lines.append(r"\end{longtable}")
+    lines.extend(
+        [
+            r"\end{longtable}",
+            "",
+            r"\vspace{8pt}",
+            r"\noindent\textbf{Summary Statistics for This Table}",
+            r"\vspace{4pt}",
+            r"\begin{center}",
+            r"\footnotesize",
+            r"\setlength{\tabcolsep}{4pt}",
+            r"\renewcommand{\arraystretch}{1.02}",
+            r"\begin{tabular}{lrrrrrr}",
+            r"\toprule",
+            r"\textbf{Group} & \textbf{N} & \textbf{Mean PCI} & \textbf{SD} & \textbf{Min} & \textbf{Max} & \textbf{\% $\geq$ 0.50} \\",
+            r"\midrule",
+        ]
+    )
+    for row in summary_rows:
+        lines.append(
+            f"{latex_escape(row['Group'])} & {row['N']} & {row['Mean']:.3f} & {row['SD']:.3f} & {row['Min']:.3f} & {row['Max']:.3f} & {row['Share']:.1f}\\% \\\\"
+        )
+    lines.extend(
+        [
+            r"\bottomrule",
+            r"\end{tabular}",
+            r"\end{center}",
+            r"\vspace{4pt}",
+            r"\noindent\footnotesize\textit{Notes:} Vers. = number of distinct observed policy versions for the institution. Latest PCI is the score attached to the most recently observed policy version.",
+        ]
+    )
     (appendix_dir / "ranking_fragment.tex").write_text("\n".join(lines), encoding="utf-8")
 
     standalone = [
         r"\documentclass[11pt]{article}",
         r"\usepackage[margin=0.6in]{geometry}",
-        r"\usepackage{booktabs,longtable,array,pdflscape}",
+        r"\usepackage[table]{xcolor}",
+        r"\usepackage{booktabs,longtable,array,colortbl,fancyhdr}",
+        r"\setlength{\headheight}{16pt}",
+        r"\pagestyle{fancy}",
+        r"\fancyhf{}",
+        r"\fancyhead[L]{\small\itshape State \& Local Governance Initiative, Hoover Institution}",
+        r"\fancyhead[R]{\small\itshape Communication as Governance}",
+        r"\rfoot{\thepage}",
+        r"\renewcommand{\headrulewidth}{0.4pt}",
         r"\begin{document}",
-        r"\begin{landscape}",
         r"\input{ranking_fragment}",
-        r"\end{landscape}",
         r"\end{document}",
     ]
     (appendix_dir / "Ranking.tex").write_text("\n".join(standalone), encoding="utf-8")
@@ -227,6 +323,8 @@ def main() -> None:
 
     indices_path = Path(args.indices_file) if args.indices_file else data_dir / "policy_level_indices_institution_year.csv"
     df = pd.read_csv(indices_path)
+    sentence_scores_path = data_dir / "sentence_scores_canonical.csv"
+    sentence_scores = pd.read_csv(sentence_scores_path, low_memory=False)
     required_meta = {"STATE", "Private", "Carnegie R1", "MEDSCHOOL", "Urbanicity (cat)", "Land-Grant Institution"}
     if not required_meta.issubset(df.columns):
         missing = sorted(required_meta.difference(df.columns))
@@ -244,8 +342,8 @@ def main() -> None:
             Tone=("Tone_Index", "mean"),
             Clarity=("Clarity_Index", "mean"),
             Legal=("Legal_Load_Index", "mean"),
-            N=("Year", "size"),
-            Latest_Year=("Year", "max"),
+            N=("Source_Year", pd.Series.nunique) if "Source_Year" in df.columns else ("Year", "size"),
+            Latest_Year=("Source_Year", "max") if "Source_Year" in df.columns else ("Year", "max"),
             Latest_PCI=("Mean_Tone_Score", "last"),
             STATE=("STATE", "first"),
             Private=("Private", "first"),
@@ -264,11 +362,12 @@ def main() -> None:
 
     # Table 5
     pci = df["Mean_Tone_Score"].dropna()
+    pci_median_alt = df["Median_Tone_Score"].dropna()
     t5 = pd.DataFrame(
         {
             "Statistic": [
-                "Mean",
-                "Median",
+                "Mean PCI (primary)",
+                "Median PCI (mean of median-based aggregation)",
                 "Standard Deviation",
                 "Minimum",
                 "Maximum",
@@ -281,7 +380,7 @@ def main() -> None:
             ],
             "Value": [
                 round(float(pci.mean()), 3),
-                round(float(pci.median()), 3),
+                round(float(pci_median_alt.mean()), 3),
                 round(float(pci.std()), 3),
                 round(float(pci.min()), 3),
                 round(float(pci.max()), 3),
@@ -295,7 +394,10 @@ def main() -> None:
         }
     )
     save_table(t5, table_dir, "table5_pci_stats", "Descriptive Statistics for Policy-Level PCI Scores")
-    summary_lines.append(f"Table 5 mean={pci.mean():.3f} median={pci.median():.3f} N={len(pci)} institutions={df['Institution'].nunique()}")
+    summary_lines.append(
+        f"Table 5 primary_mean={pci.mean():.3f} median_alt_mean={pci_median_alt.mean():.3f} "
+        f"N={len(pci)} institutions={df['Institution'].nunique()}"
+    )
 
     # Table 6
     rows = []
@@ -364,6 +466,34 @@ def main() -> None:
     t6 = pd.DataFrame(rows)
     save_table(t6, table_dir, "table6_crosssectional", "Cross-Sectional Variation in PCI Scores (Institution-Level)")
     summary_lines.append(f"Table 6 cross-sectional sample={len(inst)} institutions")
+
+    # Table 7
+    readability = (
+        sentence_scores.groupby(["Institution", "Year"], dropna=False)
+        .apply(lambda g: readability_stats(g["Sentence_Cleaned"]))
+        .reset_index()
+        .rename(columns={"Year": "Source_Year"})
+    )
+    construct = df.merge(readability, on=["Institution", "Source_Year"], how="left")
+    t7_rows = []
+    for var, label in [
+        ("Tone_Index", "Tone Index"),
+        ("Clarity_Index", "Clarity Index"),
+        ("Legal_Load_Index", "Legal Load Index"),
+        ("Flesch_Reading_Ease", "Flesch Reading Ease"),
+        ("Gunning_Fog_Index", "Gunning-Fog Index"),
+    ]:
+        g = construct[["Mean_Tone_Score", var]].dropna()
+        corr, pval = pearsonr(g["Mean_Tone_Score"], g[var])
+        t7_rows.append(
+            {
+                "Measure": label,
+                "Correlation with PCI": f"{corr:+.3f}",
+                "p-value": "<0.001" if pval < 0.001 else f"{pval:.3f}",
+                "N": int(len(g)),
+            }
+        )
+    save_table(pd.DataFrame(t7_rows), table_dir, "table7_construct_validity", "Construct Validity: Correlations Between PCI and Related Measures")
 
     # Table 8
     t8 = []
@@ -462,8 +592,14 @@ def main() -> None:
     fig, ax = plt.subplots(figsize=(8, 4.8))
     ax.hist(pci, bins=40, color=PAL["orange"], edgecolor="white", lw=0.4)
     ax.axvline(NMID, color="dimgrey", ls="--", lw=1.6, label="Neutral midpoint (0.50)")
-    ax.axvline(pci.mean(), color=PAL["blue"], ls="-", lw=1.8, label=f"Mean ({pci.mean():.3f})")
-    ax.axvline(pci.median(), color=PAL["green"], ls=":", lw=1.5, label=f"Median ({pci.median():.3f})")
+    ax.axvline(pci.mean(), color=PAL["blue"], ls="-", lw=1.8, label=f"Primary mean ({pci.mean():.3f})")
+    ax.axvline(
+        pci_median_alt.mean(),
+        color=PAL["green"],
+        ls=":",
+        lw=1.5,
+        label=f"Median-based mean ({pci_median_alt.mean():.3f})",
+    )
     ax.set_xlabel("Policy Communication Index (PCI)")
     ax.set_ylabel("Number of institution-year observations")
     ax.set_title(f"Distribution of Policy-Level PCI Scores\nN = {len(pci):,} institution-year observations")
@@ -517,33 +653,63 @@ def main() -> None:
     savefig(fig, fig_dir, "fig2_violin_crosssectional")
 
     annual = (
-        df[df["Year"].between(1991, 2023)]
+        df[df["Year"].between(1991, 2025)]
         .groupby("Year")
         .agg(mean=("Mean_Tone_Score", "mean"), sem=("Mean_Tone_Score", lambda x: x.sem()), N=("Institution", "size"))
         .reset_index()
     )
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10.2, 5.2))
     ax.fill_between(annual["Year"], annual["mean"] - 1.96 * annual["sem"], annual["mean"] + 1.96 * annual["sem"], alpha=0.15, color=PAL["blue"])
-    ax.plot(annual["Year"], annual["mean"], color=PAL["blue"], lw=2.2, zorder=3, label="Annual mean PCI")
-    ax.scatter(annual["Year"], annual["mean"], s=annual["N"] * 8, color=PAL["blue"], alpha=0.6, zorder=4, label="Dot size proportional to N")
+    ax.plot(annual["Year"], annual["mean"], color=PAL["blue"], lw=2.2, zorder=3)
+    ax.scatter(annual["Year"], annual["mean"], s=annual["N"] * 8, color=PAL["blue"], alpha=0.6, zorder=4)
     rolling = annual.set_index("Year")["mean"].rolling(3, min_periods=2).mean()
-    ax.plot(rolling.index, rolling.values, color=PAL["orange"], lw=1.6, ls="-.", label="3-year rolling mean")
-    ax.axhline(NMID, color="dimgrey", ls="--", lw=1.2, label="Neutral midpoint")
+    ax.plot(rolling.index, rolling.values, color=PAL["orange"], lw=1.6, ls="-.")
+    ax.axhline(NMID, color="dimgrey", ls="--", lw=1.2)
     ax.axvline(2011, color=PAL["red"], ls=":", lw=1.6, alpha=0.9)
-    ax.text(2011.3, annual["mean"].min() + 0.01, "Stanford v. Roche\n(2011)", fontsize=8, color=PAL["red"], ha="left", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
+    ax.text(
+        2011.25,
+        annual["mean"].min() + 0.02,
+        "Stanford v. Roche\n(2011)",
+        fontsize=8,
+        color=PAL["red"],
+        ha="left",
+        va="bottom",
+        bbox=dict(fc="white", ec="none", alpha=0.85, pad=1),
+    )
     ax.set_xlabel("Year")
     ax.set_ylabel("Annual Mean PCI")
     ax.set_title("Temporal Evolution of the Policy Communication Index")
-    ax.legend(fontsize=9, loc="upper right")
-    ax.set_xlim(1990.5, 2023.5)
+    ax.set_xlim(1990.5, 2025.5)
     ax.xaxis.set_major_locator(mticker.MultipleLocator(5))
+    dot_handle = plt.scatter([], [], s=180, color=PAL["blue"], alpha=0.6)
+    legend_handles = [
+        Line2D([0], [0], color=PAL["blue"], lw=2.2),
+        dot_handle,
+        Line2D([0], [0], color=PAL["orange"], lw=1.6, ls="-."),
+        Line2D([0], [0], color="dimgrey", lw=1.2, ls="--"),
+    ]
+    legend_labels = [
+        "Annual mean PCI",
+        "Dot size proportional to N",
+        "3-year rolling mean",
+        "Neutral midpoint",
+    ]
+    ax.legend(
+        legend_handles,
+        legend_labels,
+        fontsize=8.8,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.13),
+        ncol=2,
+        frameon=True,
+    )
     fig.tight_layout()
     savefig(fig, fig_dir, "fig3_temporal_trend")
 
     fig, ax = plt.subplots(figsize=(10, 5))
     for t, color in [("Private R1", PAL["red"]), ("Public R1", PAL["blue"])]:
         ann_t = (
-            df[df["Type"] == t]
+            df[(df["Type"] == t) & (df["Year"].between(1991, 2025))]
             .groupby("Year")
             .agg(mean=("Mean_Tone_Score", "mean"), sem=("Mean_Tone_Score", lambda x: x.sem()), N=("Institution", "size"))
             .reset_index()
@@ -557,7 +723,7 @@ def main() -> None:
     ax.set_ylabel("Annual Mean PCI")
     ax.set_title("PCI Trend by Institutional Type")
     ax.legend(fontsize=9)
-    ax.set_xlim(1990, 2024)
+    ax.set_xlim(1990, 2025.5)
     ax.xaxis.set_major_locator(mticker.MultipleLocator(5))
     fig.tight_layout()
     savefig(fig, fig_dir, "fig4_trend_by_type")
@@ -612,20 +778,29 @@ def main() -> None:
     savefig(fig, fig_dir, "fig7_quintile_profile")
 
     ranked = inst.sort_values("Mean_PCI").reset_index(drop=True)
-    fig, ax = plt.subplots(figsize=(8.6, max(14, len(ranked) * 0.125)))
-    colors = ranked["Type"].map(TYPE_COLOR_MAP).fillna(PAL["grey"])
-    ax.scatter(ranked["Mean_PCI"], range(len(ranked)), color=colors, s=28, zorder=3, alpha=0.9)
-    ax.axvline(NMID, color="dimgrey", ls="--", lw=1.1)
-    ax.axvline(ranked["Mean_PCI"].mean(), color="black", ls="-.", lw=1.1)
-    ax.set_yticks(range(len(ranked)))
-    ax.set_yticklabels(ranked["Institution"].str[:42], fontsize=5.6)
-    ax.set_xlabel("Mean PCI (institution-level average across institution-years)")
-    ax.set_title("Institution-Level PCI Scores\nSorted by mean PCI", fontsize=10)
-    fig.tight_layout()
+    half = int(np.ceil(len(ranked) / 2))
+    chunks = [ranked.iloc[:half].copy(), ranked.iloc[half:].copy()]
+    x_min = float(ranked["Mean_PCI"].min()) - 0.01
+    x_max = float(ranked["Mean_PCI"].max()) + 0.01
+    fig, axes = plt.subplots(2, 1, figsize=(10.5, 17.5), sharex=True)
+    for ax, chunk, title in zip(axes, chunks, ["Lower half of ranking", "Upper half of ranking"]):
+        colors = chunk["Type"].map(TYPE_COLOR_MAP).fillna(PAL["grey"])
+        y_pos = np.arange(len(chunk))
+        ax.scatter(chunk["Mean_PCI"], y_pos, color=colors, s=26, zorder=3, alpha=0.9)
+        ax.axvline(NMID, color="dimgrey", ls="--", lw=1.1)
+        ax.axvline(ranked["Mean_PCI"].mean(), color="black", ls="-.", lw=1.1)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(chunk["Institution"].str[:46], fontsize=6.6)
+        ax.set_xlim(x_min, x_max)
+        ax.set_title(title, fontsize=10, pad=4)
+        ax.grid(axis="x", alpha=0.3)
+    axes[-1].set_xlabel("Mean PCI (institution-level average across institution-years)")
+    fig.suptitle("Institution-Level PCI Scores\nSorted by mean PCI", fontsize=11, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.985])
     savefig(fig, fig_dir, "fig8_ranked_institutions")
 
     annual_legal = (
-        df[df["Year"].between(2000, 2023)]
+        df[df["Year"].between(2000, 2025)]
         .groupby("Year")
         .agg(mean=("Legal_Load_Index", "mean"), sem=("Legal_Load_Index", lambda x: x.sem()), N=("Institution", "size"))
         .reset_index()
@@ -652,7 +827,6 @@ def main() -> None:
         "LG",
         "Mean_PCI",
         "Latest_PCI",
-        "Latest_Year",
         "N",
         "Tone",
         "Clarity",

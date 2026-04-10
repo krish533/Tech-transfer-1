@@ -1,6 +1,6 @@
-# Paper 1 Replication Package
+# Replication Package
 
-This package reproduces the Paper 1 policy-index construction pipeline from raw policy sentences to sentence-level scores to final institution-year indices.
+This package reproduces the policy-index construction pipeline from raw policy sentences to sentence-level scores to the final institution-year file used in the manuscript.
 
 ## Package structure
 
@@ -24,17 +24,21 @@ This package reproduces the Paper 1 policy-index construction pipeline from raw 
 - tables: `paper_outputs/tables/`
 - appendix files: `paper_outputs/appendix/`
 
-`generate_paper_outputs.py` produces both manuscript figures and manuscript tables from the final institution-year index file.
+`generate_paper_outputs.py` produces the figures, tables, and appendix files used in the manuscript from the final institution-year file.
 
 ## Current corpus counts
 
 - raw sentence rows: `87,160`
 - canonical scored sentence rows: `87,160`
 - institutions: `150`
-- institution-year observations: `481`
+- observed source institution-years: `481`
 - source policy documents: `519`
+- final institution-year panel rows through 2025: `4,296`
 
-Paper 1 uses the institution-year as the final policy object. If an institution has more than one source document in the same year, all scored sentences from those documents are pooled before the institution-year indices are computed.
+The final file is constructed in two stages:
+
+1. If an institution has more than one source document in the same year, all scored sentences from those documents are pooled to form a single observed institution-year policy record.
+2. Starting from each institution's first observed policy year, that record is treated as the active policy for each following year until a newer policy document appears. When a revision or update is observed, the score changes from that year onward.
 
 ## How to run
 
@@ -95,7 +99,13 @@ Interpretation:
 File:
 - `data/derived/policy_level_indices_institution_year.csv`
 
-This is the final Paper 1 analysis file.
+This is the final analysis file used for the manuscript. It extends each observed policy record forward year by year until the next observed revision.
+
+Panel structure columns:
+- `Institution_Year_Key`: unique institution-year key
+- `Year`: panel year
+- `Source_Year`: year of the observed policy document from which the current row is inherited
+- `Is_Carried_Forward`: indicator equal to `1` if the row is carried forward from the most recent observed policy document and `0` if the row corresponds to an observed policy year
 
 Core index columns:
 - `Mean_Tone_Score`: mean of `ToneScore_0_1` across all sentences in the institution-year
@@ -140,7 +150,8 @@ Inference uses that trained classifier together with the fixed temperature-scali
 This package reproduces:
 
 - sentence-level scoring
-- institution-year aggregation
+- observed institution-year aggregation
+- year-by-year panel construction through 2025
 - sub-index construction
 - manuscript figures and tables
 

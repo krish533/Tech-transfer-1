@@ -1,7 +1,7 @@
 Region,Mean_PCI,SD,N
-Mid-Atlantic,0.452,0.045,25
-West Coast,0.448,0.051,10
-South,0.433,0.046,48
-Northeast,0.424,0.04,15
-Midwest,0.418,0.05,38
-Southwest,0.414,0.041,13
+Mid-Atlantic,0.452,0.046,25
+West Coast,0.451,0.071,10
+South,0.44,0.053,48
+Northeast,0.425,0.041,15
+Midwest,0.42,0.054,38
+Southwest,0.419,0.043,13
