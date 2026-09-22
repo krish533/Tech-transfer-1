@@ -599,7 +599,7 @@ def main() -> None:
         .agg(Mean_PCSI=("Mean_PCI", "mean"), SD=("Mean_PCI", "std"), N=("Institution", "size"))
     )
     reg["Region"] = pd.Categorical(reg["Region"], categories=REGION_ORDER, ordered=True)
-    reg = reg.sort_values("Mean_PCI", ascending=False).round(3)
+    reg = reg.sort_values("Mean_PCSI", ascending=False).round(3)
     save_table(reg, table_dir, "table11_regional", "Institution-Level PCSI by U.S. Region")
 
     # Table 12: conditional institutional regularities (descriptive, not causal)
@@ -607,9 +607,9 @@ def main() -> None:
     reg_inst["Type"] = pd.Categorical(reg_inst["Type"], categories=["Public R1", "Private R1", "Private R2", "Public R2"])
     reg_inst["Urbanicity"] = pd.Categorical(reg_inst["Urbanicity"], categories=["Rural", "Semi-Rural", "City"])
     reg_inst["Region"] = pd.Categorical(reg_inst["Region"], categories=["Midwest", "Northeast", "Mid-Atlantic", "South", "Southwest", "West Coast"])
-    mi1 = smf.ols("Mean_PCSI ~ C(Type)", data=reg_inst).fit(cov_type="HC3")
-    mi2 = smf.ols("Mean_PCSI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity)", data=reg_inst).fit(cov_type="HC3")
-    mi3 = smf.ols("Mean_PCSI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity) + C(Region)", data=reg_inst).fit(cov_type="HC3")
+    mi1 = smf.ols("Mean_PCI ~ C(Type)", data=reg_inst).fit(cov_type="HC3")
+    mi2 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity)", data=reg_inst).fit(cov_type="HC3")
+    mi3 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity) + C(Region)", data=reg_inst).fit(cov_type="HC3")
     keep_terms = [
         ("C(Type)[T.Private R1]", "Private R1"),
         ("C(Type)[T.Private R2]", "Private R2"),
@@ -658,7 +658,7 @@ def main() -> None:
             f"{ss_between / ss_total:.3f}",
             f"{ss_within / ss_total:.3f}",
             "1.000",
-            f"{inst['Mean_PCSI'].std(ddof=1):.3f}",
+            f"{inst['Mean_PCI'].std(ddof=1):.3f}",
             f"{within_sds.mean():.3f}",
             f"{within_sds.median():.3f}",
         ],
@@ -729,7 +729,7 @@ def main() -> None:
     ax.set_xticks([0, 1])
     ax.set_xticklabels([f"Land-Grant\n(N={len(lg_yes)})", f"Non-Land-Grant\n(N={len(lg_no)})"], fontsize=9)
     ax.set_title(f"C. Land-Grant Status\n(p={lg_test.pvalue:.3f})", fontweight="bold")
-    fig.suptitle("PCI Distribution by Institutional Characteristics", fontsize=11, fontweight="bold")
+    fig.suptitle("PCSI Distribution by Institutional Characteristics", fontsize=11, fontweight="bold")
     fig.tight_layout()
     savefig(fig, fig_dir, "fig2_violin_crosssectional")
 
