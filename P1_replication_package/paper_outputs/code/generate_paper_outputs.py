@@ -230,13 +230,13 @@ def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
         r"\caption{Institution-Level PCSI Scores: Full Reference Table}",
         r"\label{tab:inst_pci} \\",
         r"\toprule",
-        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCI}} & \shortstack{\textbf{Latest}\\\textbf{PCI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
+        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCSI}} & \shortstack{\textbf{Latest}\\\textbf{PCSI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
         r"\midrule",
         r"\endfirsthead",
         r"\rowcolor{gray!10}",
         r"\multicolumn{11}{l}{\textit{Table \ref{tab:inst_pci} continued from previous page}} \\",
         r"\toprule",
-        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCI}} & \shortstack{\textbf{Latest}\\\textbf{PCI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
+        r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCSI}} & \shortstack{\textbf{Latest}\\\textbf{PCSI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
         r"\midrule",
         r"\endhead",
         r"\midrule",
@@ -287,7 +287,7 @@ def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
             r"\end{tabular}",
             r"\end{center}",
             r"\vspace{4pt}",
-            r"\noindent\footnotesize\textit{Notes:} Vers. = number of distinct observed policy versions for the institution. Latest PCI is the score attached to the most recently observed policy version.",
+            r"\noindent\footnotesize\textit{Notes:} Vers. = number of distinct observed policy versions for the institution. Latest PCSI is the score attached to the most recently observed policy version.",
         ]
     )
     (appendix_dir / "ranking_fragment.tex").write_text("\n".join(lines), encoding="utf-8")
@@ -378,7 +378,7 @@ def main() -> None:
         {
             "Statistic": [
                 "Mean PCSI (primary)",
-                "Median PCI (primary distribution)",
+                "Median PCSI (primary distribution)",
                 "Mean of median-based aggregation",
                 "Standard Deviation",
                 "Minimum",
@@ -501,12 +501,12 @@ def main() -> None:
         t7_rows.append(
             {
                 "Measure": label,
-                "Correlation with PCI": f"{corr:+.3f}",
+                "Correlation with PCSI": f"{corr:+.3f}",
                 "p-value": "<0.001" if pval < 0.001 else f"{pval:.3f}",
                 "N": int(len(g)),
             }
         )
-    save_table(pd.DataFrame(t7_rows), table_dir, "table7_construct_validity", "Construct Validity: Correlations Between PCI and Related Measures")
+    save_table(pd.DataFrame(t7_rows), table_dir, "table7_construct_validity", "Construct Validity: Correlations Between PCSI and Related Measures")
 
     # Table 8
     t8 = []
@@ -577,11 +577,11 @@ def main() -> None:
     summary_lines.append(f"Table 9 R2={m3.rsquared:.3f} N={int(m3.nobs)}")
 
     # Table 10
-    comp["PCI Quintile"] = pd.qcut(comp["pci"], 5, labels=["Q1 (lowest)", "Q2", "Q3", "Q4", "Q5 (highest)"])
+    comp["PCSI Quintile"] = pd.qcut(comp["pci"], 5, labels=["Q1 (lowest)", "Q2", "Q3", "Q4", "Q5 (highest)"])
     q_prof = (
-        comp.groupby("PCI Quintile", observed=True)
+        comp.groupby("PCSI Quintile", observed=True)
         .agg(
-            Mean_PCI=("pci", "mean"),
+            Mean_PCSI=("pci", "mean"),
             Tone_Index=("Tone_Index", "mean"),
             Clarity_Index=("Clarity_Index", "mean"),
             Legal_Load_Index=("Legal_Load_Index", "mean"),
@@ -590,13 +590,13 @@ def main() -> None:
         .reset_index()
         .round(3)
     )
-    save_table(q_prof, table_dir, "table10_quintile", "Mean Sub-Index Values by PCI Quintile")
+    save_table(q_prof, table_dir, "table10_quintile", "Mean Sub-Index Values by PCSI Quintile")
 
     # Table 11
     reg = (
         inst.dropna(subset=["Region"])
         .groupby("Region", as_index=False)
-        .agg(Mean_PCI=("Mean_PCI", "mean"), SD=("Mean_PCI", "std"), N=("Institution", "size"))
+        .agg(Mean_PCSI=("Mean_PCI", "mean"), SD=("Mean_PCI", "std"), N=("Institution", "size"))
     )
     reg["Region"] = pd.Categorical(reg["Region"], categories=REGION_ORDER, ordered=True)
     reg = reg.sort_values("Mean_PCI", ascending=False).round(3)
@@ -607,9 +607,9 @@ def main() -> None:
     reg_inst["Type"] = pd.Categorical(reg_inst["Type"], categories=["Public R1", "Private R1", "Private R2", "Public R2"])
     reg_inst["Urbanicity"] = pd.Categorical(reg_inst["Urbanicity"], categories=["Rural", "Semi-Rural", "City"])
     reg_inst["Region"] = pd.Categorical(reg_inst["Region"], categories=["Midwest", "Northeast", "Mid-Atlantic", "South", "Southwest", "West Coast"])
-    mi1 = smf.ols("Mean_PCI ~ C(Type)", data=reg_inst).fit(cov_type="HC3")
-    mi2 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity)", data=reg_inst).fit(cov_type="HC3")
-    mi3 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity) + C(Region)", data=reg_inst).fit(cov_type="HC3")
+    mi1 = smf.ols("Mean_PCSI ~ C(Type)", data=reg_inst).fit(cov_type="HC3")
+    mi2 = smf.ols("Mean_PCSI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity)", data=reg_inst).fit(cov_type="HC3")
+    mi3 = smf.ols("Mean_PCSI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity) + C(Region)", data=reg_inst).fit(cov_type="HC3")
     keep_terms = [
         ("C(Type)[T.Private R1]", "Private R1"),
         ("C(Type)[T.Private R2]", "Private R2"),
@@ -658,7 +658,7 @@ def main() -> None:
             f"{ss_between / ss_total:.3f}",
             f"{ss_within / ss_total:.3f}",
             "1.000",
-            f"{inst['Mean_PCI'].std(ddof=1):.3f}",
+            f"{inst['Mean_PCSI'].std(ddof=1):.3f}",
             f"{within_sds.mean():.3f}",
             f"{within_sds.median():.3f}",
         ],
@@ -815,7 +815,7 @@ def main() -> None:
     for bar, row in zip(bars, reg_plot.itertuples(index=False)):
         ax.text(row.Mean_PCI + 0.002, bar.get_y() + bar.get_height() / 2, f"{row.Mean_PCI:.3f}  (N={int(row.N)})", va="center", fontsize=9, color="dimgrey")
     ax.axvline(NMID, color="dimgrey", ls="--", lw=1.3, label="Neutral midpoint (0.50)")
-    ax.axvline(inst["Mean_PCI"].mean(), color=PAL["orange"], ls="-.", lw=1.3, label=f"Overall mean ({inst['Mean_PCI'].mean():.3f})")
+    ax.axvline(inst["Mean_PCI"].mean(), color=PAL["orange"], ls="-.", lw=1.3, label=f"Overall mean ({inst['Mean_PCSI'].mean():.3f})")
     ax.set_xlabel("Mean Institution-Level PCI")
     ax.set_title("Institution-Level Mean PCSI by U.S. Region")
     ax.legend(fontsize=9)
@@ -851,9 +851,9 @@ def main() -> None:
     ax.bar(x + width, q_prof["Legal_Load_Index"], width, label="Legal Load Index", color=PAL["red"], alpha=0.85)
     ax.axhline(0, color="black", lw=0.8)
     ax.set_xticks(x)
-    ax.set_xticklabels([f"{q}\n(PCI={v:.3f})" for q, v in zip(q_prof["PCI Quintile"], q_prof["Mean_PCI"])], fontsize=8.5)
+    ax.set_xticklabels([f"{q}\n(PCI={v:.3f})" for q, v in zip(q_prof["PCSI Quintile"], q_prof["Mean_PCI"])], fontsize=8.5)
     ax.set_ylabel("Mean Sub-Index (z-score)")
-    ax.set_title("Linguistic Profile by PCI Quintile")
+    ax.set_title("Linguistic Profile by PCSI Quintile")
     ax.legend(fontsize=9)
     fig.tight_layout()
     savefig(fig, fig_dir, "fig7_quintile_profile")
