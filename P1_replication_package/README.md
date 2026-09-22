@@ -28,12 +28,29 @@ This package reproduces the policy-index construction pipeline from raw policy s
 
 ## Current corpus counts
 
+The replication package preserves the full archive, including the isolated one-sentence
+Caltech fragment from 1925. The manuscript's primary analytical sample begins in 1944
+because carrying that fragment forward through 1943 would give a single sentence
+disproportionate weight in the early panel.
+
+### Full archive
 - raw sentence rows: `87,160`
 - canonical scored sentence rows: `87,160`
 - institutions: `150`
 - observed source institution-years: `481`
 - source policy documents: `519`
-- final institution-year panel rows through 2025: `4,296`
+- policy-in-force institution-year rows through 2025: `4,296`
+
+### Primary manuscript sample (1944--2025)
+- sentence rows: `87,159`
+- institutions: `150`
+- directly observed institution-year policy records: `480`
+- source policy documents: `518`
+- policy-in-force institution-year observations: `4,277`
+
+Unless otherwise noted, the manuscript's main tables, figures, and reported summary
+statistics use the 1944--2025 primary analytical sample. The full-archive version is retained
+for transparency and robustness checks.
 
 The final file is constructed in two stages:
 
