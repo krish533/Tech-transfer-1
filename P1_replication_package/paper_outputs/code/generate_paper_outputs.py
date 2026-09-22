@@ -26,6 +26,8 @@ PAL = {
     "grey": "#999999",
 }
 NMID = 0.50
+PRIMARY_START_YEAR = 1944
+PRIMARY_END_YEAR = 2025
 TYPE_ORDER = ["Private R1", "Public R1", "Private R2", "Public R2"]
 URBAN_ORDER = ["Rural", "Semi-Rural", "City"]
 REGION_ORDER = ["West Coast", "Mid-Atlantic", "South", "Midwest", "Southwest", "Northeast"]
@@ -80,6 +82,7 @@ REGIONS = {
     "WA": "West Coast",
     "OR": "West Coast",
     "CA": "West Coast",
+    "HI": "West Coast",
 }
 
 TYPE_COLOR_MAP = {
@@ -224,7 +227,7 @@ def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
         r"\setlength{\LTright}{\fill}",
         "",
         r"\begin{longtable}{@{}p{4.00cm}>{\centering\arraybackslash}p{0.62cm}>{\centering\arraybackslash}p{1.35cm}>{\centering\arraybackslash}p{0.58cm}>{\centering\arraybackslash}p{0.42cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.72cm}>{\centering\arraybackslash}p{0.80cm}>{\centering\arraybackslash}p{0.95cm}>{\centering\arraybackslash}p{0.80cm}@{}}",
-        r"\caption{Institution-Level PCI Scores: Full Reference Table}",
+        r"\caption{Institution-Level PCSI Scores: Full Reference Table}",
         r"\label{tab:inst_pci} \\",
         r"\toprule",
         r"\textbf{Institution} & \textbf{St.} & \textbf{Type} & \textbf{Med} & \textbf{LG} & \shortstack{\textbf{Mean}\\\textbf{PCI}} & \shortstack{\textbf{Latest}\\\textbf{PCI}} & \textbf{Vers.} & \textbf{Tone} & \textbf{Clarity} & \textbf{Legal} \\",
@@ -270,7 +273,7 @@ def build_ranking_tex(ranked: pd.DataFrame, appendix_dir: Path) -> None:
             r"\renewcommand{\arraystretch}{1.02}",
             r"\begin{tabular}{lrrrrrr}",
             r"\toprule",
-            r"\textbf{Group} & \textbf{N} & \textbf{Mean PCI} & \textbf{SD} & \textbf{Min} & \textbf{Max} & \textbf{\% $\geq$ 0.50} \\",
+            r"\textbf{Group} & \textbf{N} & \textbf{Mean PCSI} & \textbf{SD} & \textbf{Min} & \textbf{Max} & \textbf{\% $\geq$ 0.50} \\",
             r"\midrule",
         ]
     )
@@ -325,6 +328,14 @@ def main() -> None:
     df = pd.read_csv(indices_path)
     sentence_scores_path = data_dir / "sentence_scores_canonical.csv"
     sentence_scores = pd.read_csv(sentence_scores_path, low_memory=False)
+
+    # Primary manuscript window. The sole pre-1944 source record is a one-sentence
+    # Caltech fragment from 1925; forward-filling it through 1943 would give that
+    # fragment disproportionate weight in the annual panel. We therefore begin the
+    # primary analysis in 1944, the first year with a substantive multi-sentence
+    # policy record. The 1925 record is retained in the raw/derived data for auditability.
+    df = df[df["Year"].between(PRIMARY_START_YEAR, PRIMARY_END_YEAR)].copy()
+    sentence_scores = sentence_scores[sentence_scores["Year"].between(PRIMARY_START_YEAR, PRIMARY_END_YEAR)].copy()
     required_meta = {"STATE", "Private", "Carnegie R1", "MEDSCHOOL", "Urbanicity (cat)", "Land-Grant Institution"}
     if not required_meta.issubset(df.columns):
         missing = sorted(required_meta.difference(df.columns))
@@ -366,8 +377,9 @@ def main() -> None:
     t5 = pd.DataFrame(
         {
             "Statistic": [
-                "Mean PCI (primary)",
-                "Median PCI (mean of median-based aggregation)",
+                "Mean PCSI (primary)",
+                "Median PCI (primary distribution)",
+                "Mean of median-based aggregation",
                 "Standard Deviation",
                 "Minimum",
                 "Maximum",
@@ -380,6 +392,7 @@ def main() -> None:
             ],
             "Value": [
                 round(float(pci.mean()), 3),
+                round(float(pci.median()), 3),
                 round(float(pci_median_alt.mean()), 3),
                 round(float(pci.std()), 3),
                 round(float(pci.min()), 3),
@@ -393,9 +406,9 @@ def main() -> None:
             ],
         }
     )
-    save_table(t5, table_dir, "table5_pci_stats", "Descriptive Statistics for Policy-Level PCI Scores")
+    save_table(t5, table_dir, "table5_pci_stats", "Descriptive Statistics for Policy-Level PCSI Scores")
     summary_lines.append(
-        f"Table 5 primary_mean={pci.mean():.3f} median_alt_mean={pci_median_alt.mean():.3f} "
+        f"Table 5 primary_mean={pci.mean():.3f} primary_median={pci.median():.3f} median_alt_mean={pci_median_alt.mean():.3f} "
         f"N={len(pci)} institutions={df['Institution'].nunique()}"
     )
 
@@ -464,7 +477,7 @@ def main() -> None:
             }
         )
     t6 = pd.DataFrame(rows)
-    save_table(t6, table_dir, "table6_crosssectional", "Cross-Sectional Variation in PCI Scores (Institution-Level)")
+    save_table(t6, table_dir, "table6_crosssectional", "Cross-Sectional Variation in PCSI Scores (Institution-Level)")
     summary_lines.append(f"Table 6 cross-sectional sample={len(inst)} institutions")
 
     # Table 7
@@ -516,12 +529,13 @@ def main() -> None:
     save_table(pd.DataFrame(t8), table_dir, "table8_subindices", "Descriptive Statistics for Linguistic Sub-Indices")
 
     # Table 9
-    comp = df[["Mean_Tone_Score", "Tone_Index", "Clarity_Index", "Legal_Load_Index"]].dropna().rename(
+    comp = df[["Institution", "Mean_Tone_Score", "Tone_Index", "Clarity_Index", "Legal_Load_Index"]].dropna().rename(
         columns={"Mean_Tone_Score": "pci"}
     )
-    m1 = smf.ols("pci ~ Tone_Index", data=comp).fit(cov_type="HC3")
-    m2 = smf.ols("pci ~ Tone_Index + Clarity_Index", data=comp).fit(cov_type="HC3")
-    m3 = smf.ols("pci ~ Tone_Index + Clarity_Index + Legal_Load_Index", data=comp).fit(cov_type="HC3")
+    cluster_kw = {"groups": comp["Institution"]}
+    m1 = smf.ols("pci ~ Tone_Index", data=comp).fit(cov_type="cluster", cov_kwds=cluster_kw)
+    m2 = smf.ols("pci ~ Tone_Index + Clarity_Index", data=comp).fit(cov_type="cluster", cov_kwds=cluster_kw)
+    m3 = smf.ols("pci ~ Tone_Index + Clarity_Index + Legal_Load_Index", data=comp).fit(cov_type="cluster", cov_kwds=cluster_kw)
     t9_rows = []
     for var, label in [
         ("Tone_Index", "Tone Index"),
@@ -559,7 +573,7 @@ def main() -> None:
             "SE 3": "",
         }
     )
-    save_table(pd.DataFrame(t9_rows), table_dir, "table9_decomposition", "Variance Decomposition of the Policy Communication Index")
+    save_table(pd.DataFrame(t9_rows), table_dir, "table9_decomposition", "Linguistic Correlates of the Policy Communication Stance Index")
     summary_lines.append(f"Table 9 R2={m3.rsquared:.3f} N={int(m3.nobs)}")
 
     # Table 10
@@ -586,7 +600,74 @@ def main() -> None:
     )
     reg["Region"] = pd.Categorical(reg["Region"], categories=REGION_ORDER, ordered=True)
     reg = reg.sort_values("Mean_PCI", ascending=False).round(3)
-    save_table(reg, table_dir, "table11_regional", "Institution-Level PCI by U.S. Region")
+    save_table(reg, table_dir, "table11_regional", "Institution-Level PCSI by U.S. Region")
+
+    # Table 12: conditional institutional regularities (descriptive, not causal)
+    reg_inst = inst.dropna(subset=["Mean_PCI", "Type", "Urbanicity", "Region", "Land_Grant", "MEDSCHOOL"]).copy()
+    reg_inst["Type"] = pd.Categorical(reg_inst["Type"], categories=["Public R1", "Private R1", "Private R2", "Public R2"])
+    reg_inst["Urbanicity"] = pd.Categorical(reg_inst["Urbanicity"], categories=["Rural", "Semi-Rural", "City"])
+    reg_inst["Region"] = pd.Categorical(reg_inst["Region"], categories=["Midwest", "Northeast", "Mid-Atlantic", "South", "Southwest", "West Coast"])
+    mi1 = smf.ols("Mean_PCI ~ C(Type)", data=reg_inst).fit(cov_type="HC3")
+    mi2 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity)", data=reg_inst).fit(cov_type="HC3")
+    mi3 = smf.ols("Mean_PCI ~ C(Type) + Land_Grant + MEDSCHOOL + C(Urbanicity) + C(Region)", data=reg_inst).fit(cov_type="HC3")
+    keep_terms = [
+        ("C(Type)[T.Private R1]", "Private R1"),
+        ("C(Type)[T.Private R2]", "Private R2"),
+        ("C(Type)[T.Public R2]", "Public R2"),
+        ("Land_Grant", "Land-grant"),
+        ("MEDSCHOOL", "Medical school"),
+        ("C(Urbanicity)[T.Semi-Rural]", "Semi-rural"),
+        ("C(Urbanicity)[T.City]", "City"),
+    ]
+    t12_rows = []
+    for term, label in keep_terms:
+        row = {"Variable": label}
+        for j, model in enumerate([mi1, mi2, mi3], start=1):
+            if term in model.params.index:
+                row[f"Model {j}"] = f"{model.params[term]:.3f}{stars(model.pvalues[term])}"
+                row[f"SE {j}"] = f"({model.bse[term]:.3f})"
+            else:
+                row[f"Model {j}"] = ""
+                row[f"SE {j}"] = ""
+        t12_rows.append(row)
+    t12_rows.append({"Variable": "Region fixed effects", "Model 1": "No", "SE 1": "", "Model 2": "No", "SE 2": "", "Model 3": "Yes", "SE 3": ""})
+    t12_rows.append({"Variable": "R^2", "Model 1": f"{mi1.rsquared:.3f}", "SE 1": "", "Model 2": f"{mi2.rsquared:.3f}", "SE 2": "", "Model 3": f"{mi3.rsquared:.3f}", "SE 3": ""})
+    t12_rows.append({"Variable": "Institutions", "Model 1": str(int(mi1.nobs)), "SE 1": "", "Model 2": str(int(mi2.nobs)), "SE 2": "", "Model 3": str(int(mi3.nobs)), "SE 3": ""})
+    save_table(pd.DataFrame(t12_rows), table_dir, "table12_conditional_regularities", "Conditional Institutional Correlates of PCSI")
+
+    # Table 13: descriptive between/within decomposition of observed panel variation
+    grand = float(df["Mean_Tone_Score"].mean())
+    group_stats = df.groupby("Institution")["Mean_Tone_Score"].agg(["mean", "count"])
+    ss_between = float(((group_stats["mean"] - grand) ** 2 * group_stats["count"]).sum())
+    ss_within = float(
+        df.join(group_stats["mean"].rename("inst_mean"), on="Institution")
+          .assign(ss=lambda x: (x["Mean_Tone_Score"] - x["inst_mean"]) ** 2)["ss"].sum()
+    )
+    ss_total = ss_between + ss_within
+    within_sds = df.groupby("Institution")["Mean_Tone_Score"].std().dropna()
+    t13 = pd.DataFrame({
+        "Component": [
+            "Between institutions",
+            "Within institutions over time",
+            "Overall",
+            "SD of institution means",
+            "Mean institution-specific within SD",
+            "Median institution-specific within SD",
+        ],
+        "Value": [
+            f"{ss_between / ss_total:.3f}",
+            f"{ss_within / ss_total:.3f}",
+            "1.000",
+            f"{inst['Mean_PCI'].std(ddof=1):.3f}",
+            f"{within_sds.mean():.3f}",
+            f"{within_sds.median():.3f}",
+        ],
+    })
+    save_table(t13, table_dir, "table13_variance_components", "Where Does PCSI Variation Occur?")
+    summary_lines.append(
+        f"Table 13 between_share={ss_between/ss_total:.3f} within_share={ss_within/ss_total:.3f} "
+        f"mean_within_sd={within_sds.mean():.3f}"
+    )
 
     # Figures
     fig, ax = plt.subplots(figsize=(8, 4.8))
@@ -600,9 +681,9 @@ def main() -> None:
         lw=1.5,
         label=f"Median-based mean ({pci_median_alt.mean():.3f})",
     )
-    ax.set_xlabel("Policy Communication Index (PCI)")
+    ax.set_xlabel("Policy Communication Stance Index (PCSI)")
     ax.set_ylabel("Number of institution-year observations")
-    ax.set_title(f"Distribution of Policy-Level PCI Scores\nN = {len(pci):,} institution-year observations")
+    ax.set_title(f"Distribution of Policy-Level PCSI Scores\nN = {len(pci):,} institution-year observations")
     ax.legend(framealpha=0.9, fontsize=9)
     ax.set_xlim(max(0.0, float(pci.min()) - 0.02), min(1.0, float(pci.max()) + 0.02))
     fig.tight_layout()
@@ -622,7 +703,7 @@ def main() -> None:
     ax.axhline(NMID, color="dimgrey", ls="--", lw=1.2)
     ax.set_xticks(range(len(TYPE_ORDER)))
     ax.set_xticklabels(TYPE_ORDER, rotation=14, ha="right", fontsize=8)
-    ax.set_ylabel("Institution-Level Mean PCI")
+    ax.set_ylabel("Institution-Level Mean PCSI")
     ax.set_title(f"A. Institutional Type\n(K-W p={kw_type.pvalue:.3f})", fontweight="bold")
 
     ax = axes[1]
@@ -653,7 +734,7 @@ def main() -> None:
     savefig(fig, fig_dir, "fig2_violin_crosssectional")
 
     annual = (
-        df[df["Year"].between(1991, 2025)]
+        df[df["Year"].between(PRIMARY_START_YEAR, PRIMARY_END_YEAR)]
         .groupby("Year")
         .agg(mean=("Mean_Tone_Score", "mean"), sem=("Mean_Tone_Score", lambda x: x.sem()), N=("Institution", "size"))
         .reset_index()
@@ -677,10 +758,10 @@ def main() -> None:
         bbox=dict(fc="white", ec="none", alpha=0.85, pad=1),
     )
     ax.set_xlabel("Year")
-    ax.set_ylabel("Annual Mean PCI")
-    ax.set_title("Temporal Evolution of the Policy Communication Index")
-    ax.set_xlim(1990.5, 2025.5)
-    ax.xaxis.set_major_locator(mticker.MultipleLocator(5))
+    ax.set_ylabel("Annual Mean PCSI")
+    ax.set_title("Temporal Evolution of the Policy Communication Stance Index")
+    ax.set_xlim(PRIMARY_START_YEAR - 0.5, PRIMARY_END_YEAR + 0.5)
+    ax.xaxis.set_major_locator(mticker.MultipleLocator(10))
     dot_handle = plt.scatter([], [], s=180, color=PAL["blue"], alpha=0.6)
     legend_handles = [
         Line2D([0], [0], color=PAL["blue"], lw=2.2),
@@ -709,7 +790,7 @@ def main() -> None:
     fig, ax = plt.subplots(figsize=(10, 5))
     for t, color in [("Private R1", PAL["red"]), ("Public R1", PAL["blue"])]:
         ann_t = (
-            df[(df["Type"] == t) & (df["Year"].between(1991, 2025))]
+            df[(df["Type"] == t) & (df["Year"].between(PRIMARY_START_YEAR, PRIMARY_END_YEAR))]
             .groupby("Year")
             .agg(mean=("Mean_Tone_Score", "mean"), sem=("Mean_Tone_Score", lambda x: x.sem()), N=("Institution", "size"))
             .reset_index()
@@ -720,7 +801,7 @@ def main() -> None:
     ax.axhline(NMID, color="dimgrey", ls="--", lw=1.2)
     ax.axvline(2011, color=PAL["pink"], ls=":", lw=1.6, alpha=0.9, label="Stanford v. Roche (2011)")
     ax.set_xlabel("Year")
-    ax.set_ylabel("Annual Mean PCI")
+    ax.set_ylabel("Annual Mean PCSI")
     ax.set_title("PCI Trend by Institutional Type")
     ax.legend(fontsize=9)
     ax.set_xlim(1990, 2025.5)
@@ -736,7 +817,7 @@ def main() -> None:
     ax.axvline(NMID, color="dimgrey", ls="--", lw=1.3, label="Neutral midpoint (0.50)")
     ax.axvline(inst["Mean_PCI"].mean(), color=PAL["orange"], ls="-.", lw=1.3, label=f"Overall mean ({inst['Mean_PCI'].mean():.3f})")
     ax.set_xlabel("Mean Institution-Level PCI")
-    ax.set_title("Institution-Level Mean PCI by U.S. Region")
+    ax.set_title("Institution-Level Mean PCSI by U.S. Region")
     ax.legend(fontsize=9)
     fig.tight_layout()
     savefig(fig, fig_dir, "fig5_regional_bar")
@@ -794,8 +875,8 @@ def main() -> None:
         ax.set_xlim(x_min, x_max)
         ax.set_title(title, fontsize=10, pad=4)
         ax.grid(axis="x", alpha=0.3)
-    axes[-1].set_xlabel("Mean PCI (institution-level average across institution-years)")
-    fig.suptitle("Institution-Level PCI Scores\nSorted by mean PCI", fontsize=11, fontweight="bold")
+    axes[-1].set_xlabel("Mean PCSI (institution-level average across institution-years)")
+    fig.suptitle("Institution-Level PCSI Scores\nSorted by mean PCI", fontsize=11, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.985])
     savefig(fig, fig_dir, "fig8_ranked_institutions")
 
