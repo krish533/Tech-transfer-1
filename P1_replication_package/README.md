@@ -1,4 +1,4 @@
-# Replication Package
+# Replication Package — Communication as Governance
 
 This package reproduces the policy-index construction pipeline from raw policy sentences to sentence-level scores to the final institution-year file used in the manuscript.
 
@@ -26,7 +26,7 @@ This package reproduces the policy-index construction pipeline from raw policy s
 
 `generate_paper_outputs.py` produces the figures, tables, and appendix files used in the manuscript from the final institution-year file.
 
-## Current corpus counts
+## Current corpus counts and primary analysis window
 
 The replication package preserves the full archive, including the isolated one-sentence
 Caltech fragment from 1925. The manuscript's primary analytical sample begins in 1944
@@ -51,6 +51,10 @@ disproportionate weight in the early panel.
 Unless otherwise noted, the manuscript's main tables, figures, and reported summary
 statistics use the 1944--2025 primary analytical sample. The full-archive version is retained
 for transparency and robustness checks.
+
+The manuscript's **primary analysis window is 1944–2025**. The only source record before 1944 is a one-sentence Caltech fragment from 1925. Because the policy-in-force procedure would otherwise carry that single sentence forward through 1943, the manuscript begins in 1944, the first year with a substantive multi-sentence policy record. The raw and derived files retain the 1925 observation for auditability and robustness checks.
+
+Within the primary window there are `87,159` sentence rows, `518` source policy documents, `480` directly observed institution-years, `150` institutions, and `4,277` policy-in-force institution-year observations.
 
 The final file is constructed in two stages:
 
@@ -156,7 +160,7 @@ Institution descriptors in the final file:
 
 ## Model and inference
 
-The released NLP model is already trained. The training annotations are reflected in the released model weights:
+The released NLP model is already trained. The model is the scaling device used to construct the manuscript's Policy Communication Stance Index (PCSI). The current saved evaluation metadata report validation accuracy of `0.9015` and macro-F1 of `0.8937` (`n_train = 2,458`, `n_val = 274`). The public package reproduces inference and aggregation from the saved model, but it does not currently reproduce model training from scratch because the coder-level training file is not included.
 
 - `model/srn_cls_model/model.safetensors`
 
