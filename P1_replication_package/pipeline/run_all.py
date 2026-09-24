@@ -11,6 +11,7 @@ def main() -> None:
     derived_dir = package_root / "data" / "derived"
     model_dir = package_root / "model" / "srn_cls_model"
     temperature_file = model_dir / "temperature_scaling.json"
+    primary_panel = derived_dir / "policy_level_indices_primary_1944_2025.csv"
 
     intermediate_dir.mkdir(parents=True, exist_ok=True)
     derived_dir.mkdir(parents=True, exist_ok=True)
@@ -48,11 +49,40 @@ def main() -> None:
         ],
         check=True,
     )
+    subprocess.run(
+        [
+            sys.executable,
+            str(pipeline_dir / "04_build_primary_analysis_panel.py"),
+            "--input-file",
+            str(derived_dir / "policy_level_indices_institution_year.csv"),
+            "--output-file",
+            str(primary_panel),
+        ],
+        check=True,
+    )
 
-    subprocess.run([sys.executable, str(paper_code_dir / "generate_paper_outputs.py")], check=True)
-    subprocess.run([sys.executable, str(paper_code_dir / "generate_strengthened_results.py")], check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            str(paper_code_dir / "generate_paper_outputs.py"),
+            "--indices-file",
+            str(primary_panel),
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(paper_code_dir / "generate_strengthened_results.py"),
+            "--panel-file",
+            str(primary_panel),
+            "--sentences-file",
+            str(derived_dir / "sentence_scores_canonical.csv"),
+        ],
+        check=True,
+    )
 
-    print("Replication package run completed, including strengthened manuscript robustness outputs.")
+    print("Replication package run completed for the 1944--2025 manuscript sample, including strengthened robustness outputs.")
 
 
 if __name__ == "__main__":
