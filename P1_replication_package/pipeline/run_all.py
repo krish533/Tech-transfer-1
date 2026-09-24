@@ -48,9 +48,11 @@ def main() -> None:
         ],
         check=True,
     )
-    subprocess.run([sys.executable, str(paper_code_dir / "generate_paper_outputs.py")], check=True)
 
-    print("Replication package run completed.")
+    subprocess.run([sys.executable, str(paper_code_dir / "generate_paper_outputs.py")], check=True)
+    subprocess.run([sys.executable, str(paper_code_dir / "generate_strengthened_results.py")], check=True)
+
+    print("Replication package run completed, including strengthened manuscript robustness outputs.")
 
 
 if __name__ == "__main__":
