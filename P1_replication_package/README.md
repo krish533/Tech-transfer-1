@@ -9,7 +9,8 @@ The manuscript's primary analytical window is **1944--2025**. The underlying arc
 ### Core data chain
 - `data/raw/policy_sentences_cleaned_combined.csv`
 - `data/derived/sentence_scores_canonical.csv`
-- `data/derived/policy_level_indices_institution_year.csv`
+- `data/derived/policy_level_indices_institution_year.csv` (full canonical archive panel)
+- `data/derived/policy_level_indices_primary_1944_2025.csv` (generated primary manuscript panel)
 
 ### Model
 - `model/srn_cls_model/`
@@ -18,11 +19,13 @@ The manuscript's primary analytical window is **1944--2025**. The underlying arc
 - `pipeline/01_build_input_corpus.py`
 - `pipeline/02_score_sentences.py`
 - `pipeline/03_build_policy_level_indices.py`
+- `pipeline/04_build_primary_analysis_panel.py`
 - `pipeline/run_all.py`
 
 ### Manuscript outputs
 - core output code: `paper_outputs/code/generate_paper_outputs.py`
 - strengthened results/robustness code: `paper_outputs/code/generate_strengthened_results.py`
+- final-manuscript figure code: `paper_outputs/code/generate_final_manuscript_figures.py`
 - figures: `paper_outputs/figures/`
 - core tables: `paper_outputs/tables/`
 - strengthened tables/results: `paper_outputs/tables/strengthened_results/`
@@ -49,10 +52,12 @@ Unless explicitly labeled as a full-archive robustness exercise, manuscript resu
 
 ## Panel construction
 
-The final institution-year file is constructed in two stages:
+The canonical institution-year file is constructed in two stages:
 
 1. When an institution has multiple source policy documents in the same year, all scored sentences from those documents are pooled into one directly observed institution-year policy record.
 2. Each observed policy record is treated as the policy in force until the next observed revision for that institution. The final panel retains both `Source_Year` and `Is_Carried_Forward`, so directly observed and inherited annual values can always be distinguished.
+
+The full canonical panel is stored as `data/derived/policy_level_indices_institution_year.csv`. The script `pipeline/04_build_primary_analysis_panel.py` then restricts that file to 1944--2025 and asserts the manuscript sample counts before writing `data/derived/policy_level_indices_primary_1944_2025.csv`.
 
 The 4,277 primary panel rows are therefore **policy-in-force institution-years, not 4,277 distinct policy documents**.
 
@@ -68,21 +73,38 @@ The complete run:
 
 1. rebuilds the sentence input corpus;
 2. scores sentences with the preserved BERT classifier and temperature calibration;
-3. reconstructs observed policy-level indices and the annual policy-in-force panel;
-4. regenerates the core manuscript tables and figures; and
-5. regenerates the strengthened robustness outputs used in the final Results and Appendix.
+3. reconstructs the full observed-policy and annual policy-in-force panel;
+4. builds and validates the 1944--2025 primary manuscript panel;
+5. regenerates the core manuscript tables from that primary panel;
+6. regenerates the strengthened robustness outputs used in the final Results and Appendix; and
+7. regenerates the two figure filenames referenced directly by the final manuscript.
 
 Temporary run files are written to `data/intermediate/`.
 
-If the canonical scored sentences and institution-year panel already exist and only the final-paper robustness outputs are needed, run:
+If the canonical scored sentences and full institution-year panel already exist and only the final-paper robustness outputs are needed, run:
 
 ```bash
-python paper_outputs/code/generate_strengthened_results.py
+python paper_outputs/code/generate_strengthened_results.py \
+  --panel-file data/derived/policy_level_indices_primary_1944_2025.csv \
+  --sentences-file data/derived/sentence_scores_canonical.csv
 ```
 
-By default, those outputs are written to:
+By default, strengthened outputs are written to:
 
 `paper_outputs/tables/strengthened_results/`
+
+To regenerate only the two figures referenced by the final LaTeX manuscript, run:
+
+```bash
+python paper_outputs/code/generate_final_manuscript_figures.py \
+  --panel-file data/derived/policy_level_indices_primary_1944_2025.csv
+```
+
+This writes:
+- `paper_outputs/figures/fig1_pci_histogram.pdf`
+- `paper_outputs/figures/fig1_pci_histogram.png`
+- `paper_outputs/figures/fig3_temporal_trend_pcsi.pdf`
+- `paper_outputs/figures/fig3_temporal_trend_pcsi.png`
 
 ## Core derived files
 
@@ -99,8 +121,15 @@ Important columns:
 
 `ToneScore_0_1` is the sentence-level quantity aggregated into the Policy Communication Stance Index (PCSI).
 
-### Final institution-year panel
+### Full canonical institution-year panel
 File: `data/derived/policy_level_indices_institution_year.csv`
+
+This file preserves the full archive, including the isolated 1925 Caltech provenance record and its carry-forward years.
+
+### Primary manuscript panel
+Generated file: `data/derived/policy_level_indices_primary_1944_2025.csv`
+
+This is the 1944--2025 panel routed into the manuscript-output code. Its construction is checked against the final-paper sample counts before analysis proceeds.
 
 Panel structure:
 - `Institution`
@@ -143,7 +172,7 @@ These reconstruct median, 5% trimmed-mean, and sentence-length-weighted PCSI ver
 - `revision_changes.csv`
 - `revision_change_summary.csv`
 
-The variance decomposition reports between- and within-university shares for the baseline and alternative aggregations, both in the policy-in-force panel and among directly observed records. Revision files compare consecutive observed policies within universities.
+The variance decomposition reports between- and within-university shares for the baseline and alternative aggregations, both in the policy-in-force panel and among directly observed records. Revision files compare consecutive observed policies within universities. The compact summary is stored in the repository; the row-level `revision_changes.csv` is regenerated by the script on each run.
 
 ### Institutional robustness
 - `institutional_aggregation_robustness.csv`
@@ -168,7 +197,7 @@ These hold university composition fixed across multiple cohort starts, estimate 
 
 ## Selected manuscript benchmarks reproduced by the strengthened script
 
-The script contains explicit sample assertions for the final manuscript sample:
+The code contains explicit sample assertions for the final manuscript sample:
 - 4,277 policy-in-force institution-year observations;
 - 480 directly observed institution-year records; and
 - 150 universities.
@@ -184,7 +213,7 @@ Key benchmark results include:
 - fixed-2000-cohort PCSI trend: about `-0.00112` per year; and
 - directly observed-policy university-FE trend from 1980 onward: about `-0.00117` per year.
 
-These benchmarks are intended as reproducibility checks, not additional hard-coded inputs to the analysis.
+These benchmarks are reproducibility checks, not hard-coded inputs to the analysis.
 
 ## Model and inference provenance
 
