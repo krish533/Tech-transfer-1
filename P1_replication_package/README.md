@@ -1,6 +1,8 @@
-# Replication Package
+# Replication Package: Communication as Governance
 
-This package reproduces the policy-index construction pipeline from raw policy sentences to sentence-level scores to the final institution-year file used in the manuscript.
+This package reproduces the measurement pipeline and manuscript analyses for **Communication as Governance: Measuring Communicative Stance in University Intellectual Property Policies**.
+
+The manuscript's primary analytical window is **1944--2025**. The underlying archive retains an isolated one-sentence Caltech record from 1925 for provenance and robustness checks, but the main paper does not use its 1925--1943 carry-forward observations.
 
 ## Package structure
 
@@ -18,20 +20,15 @@ This package reproduces the policy-index construction pipeline from raw policy s
 - `pipeline/03_build_policy_level_indices.py`
 - `pipeline/run_all.py`
 
-### Paper outputs
-- code: `paper_outputs/code/generate_paper_outputs.py`
+### Manuscript outputs
+- core output code: `paper_outputs/code/generate_paper_outputs.py`
+- strengthened results/robustness code: `paper_outputs/code/generate_strengthened_results.py`
 - figures: `paper_outputs/figures/`
-- tables: `paper_outputs/tables/`
-- appendix files: `paper_outputs/appendix/`
-
-`generate_paper_outputs.py` produces the figures, tables, and appendix files used in the manuscript from the final institution-year file.
+- core tables: `paper_outputs/tables/`
+- strengthened tables/results: `paper_outputs/tables/strengthened_results/`
+- appendix support files: `paper_outputs/appendix/`
 
 ## Current corpus counts
-
-The replication package preserves the full archive, including the isolated one-sentence
-Caltech fragment from 1925. The manuscript's primary analytical sample begins in 1944
-because carrying that fragment forward through 1943 would give a single sentence
-disproportionate weight in the early panel.
 
 ### Full archive
 - raw sentence rows: `87,160`
@@ -41,159 +38,183 @@ disproportionate weight in the early panel.
 - source policy documents: `519`
 - policy-in-force institution-year rows through 2025: `4,296`
 
-### Primary manuscript sample (1944--2025)
+### Primary manuscript sample, 1944--2025
 - sentence rows: `87,159`
 - institutions: `150`
 - directly observed institution-year policy records: `480`
 - source policy documents: `518`
 - policy-in-force institution-year observations: `4,277`
 
-Unless otherwise noted, the manuscript's main tables, figures, and reported summary
-statistics use the 1944--2025 primary analytical sample. The full-archive version is retained
-for transparency and robustness checks.
+Unless explicitly labeled as a full-archive robustness exercise, manuscript results use the 1944--2025 sample.
 
-The final file is constructed in two stages:
+## Panel construction
 
-1. If an institution has more than one source document in the same year, all scored sentences from those documents are pooled to form a single observed institution-year policy record.
-2. Starting from each institution's first observed policy year, that record is treated as the active policy for each following year until a newer policy document appears. When a revision or update is observed, the score changes from that year onward.
+The final institution-year file is constructed in two stages:
+
+1. When an institution has multiple source policy documents in the same year, all scored sentences from those documents are pooled into one directly observed institution-year policy record.
+2. Each observed policy record is treated as the policy in force until the next observed revision for that institution. The final panel retains both `Source_Year` and `Is_Carried_Forward`, so directly observed and inherited annual values can always be distinguished.
+
+The 4,277 primary panel rows are therefore **policy-in-force institution-years, not 4,277 distinct policy documents**.
 
 ## How to run
 
 From the package root:
 
-```powershell
+```bash
 python pipeline/run_all.py
 ```
 
-This rebuilds:
+The complete run:
 
-- `data/derived/sentence_scores_canonical.csv`
-- `data/derived/policy_level_indices_institution_year.csv`
-- all manuscript-facing figures and tables under `paper_outputs/`
+1. rebuilds the sentence input corpus;
+2. scores sentences with the preserved BERT classifier and temperature calibration;
+3. reconstructs observed policy-level indices and the annual policy-in-force panel;
+4. regenerates the core manuscript tables and figures; and
+5. regenerates the strengthened robustness outputs used in the final Results and Appendix.
 
-Temporary run files are written to `data/intermediate/` during execution.
+Temporary run files are written to `data/intermediate/`.
 
-## What each file contains
+If the canonical scored sentences and institution-year panel already exist and only the final-paper robustness outputs are needed, run:
 
-### 1. Raw sentences
-File:
-- `data/raw/policy_sentences_cleaned_combined.csv`
+```bash
+python paper_outputs/code/generate_strengthened_results.py
+```
 
-Each row is one cleaned sentence from a source IP policy document.
+By default, those outputs are written to:
 
-Key columns:
-- `Institution`: institution name used in the replication package
-- `Year`: source policy year used for the document
-- `File`: source text filename
-- `Sentence_Number`: sentence order within the source file
-- `Sentence_Cleaned`: cleaned sentence text used for inference
-- `Cleaned_Char_Count`: character count of the cleaned sentence
-- `STATE`, `Private`, `Carnegie R1`, `MEDSCHOOL`, `Urbanicity (cat)`, `Land-Grant Institution`, `Stem program`: institution descriptors carried through to the final aggregation
-- `Type`: derived institutional type (`Private R1`, `Public R1`, `Private R2`, `Public R2`)
-- `Med`: indicator shown as `Y/N` for medical school status
-- `LG`: indicator shown as `Y/N` for land-grant status
+`paper_outputs/tables/strengthened_results/`
 
-### 2. Sentence-level scores
-File:
-- `data/derived/sentence_scores_canonical.csv`
+## Core derived files
 
-This is the sentence-level inference output from the trained BERT classifier.
+### Sentence-level scores
+File: `data/derived/sentence_scores_canonical.csv`
 
-Key score columns:
-- `P_restrictive_calib`: calibrated probability that the sentence is restrictive
-- `P_neutral_calib`: calibrated probability that the sentence is neutral
-- `P_supportive_calib`: calibrated probability that the sentence is supportive
-- `Pred_Label`: highest-probability predicted class
-- `SRN_score`: continuous stance score defined as `P_supportive_calib - P_restrictive_calib`
-- `ToneScore_0_1`: probability-aggregation score defined as `P_supportive_calib + 0.5 * P_neutral_calib`
+Important columns:
+- `P_restrictive_calib`
+- `P_neutral_calib`
+- `P_supportive_calib`
+- `Pred_Label`
+- `SRN_score = P_supportive_calib - P_restrictive_calib`
+- `ToneScore_0_1 = P_supportive_calib + 0.5 * P_neutral_calib`
 
-Interpretation:
-- `ToneScore_0_1 = 0` corresponds to fully restrictive language
-- `ToneScore_0_1 = 0.5` corresponds to neutral language
-- `ToneScore_0_1 = 1` corresponds to fully supportive language
+`ToneScore_0_1` is the sentence-level quantity aggregated into the Policy Communication Stance Index (PCSI).
 
-### 3. Final institution-year indices
-File:
-- `data/derived/policy_level_indices_institution_year.csv`
+### Final institution-year panel
+File: `data/derived/policy_level_indices_institution_year.csv`
 
-This is the final analysis file used for the manuscript. It extends each observed policy record forward year by year until the next observed revision.
+Panel structure:
+- `Institution`
+- `Year`
+- `Source_Year`
+- `Is_Carried_Forward`
 
-Panel structure columns:
-- `Institution_Year_Key`: unique institution-year key
-- `Year`: panel year
-- `Source_Year`: year of the observed policy document from which the current row is inherited
-- `Is_Carried_Forward`: indicator equal to `1` if the row is carried forward from the most recent observed policy document and `0` if the row corresponds to an observed policy year
+Main index variables:
+- `Mean_Tone_Score`: baseline PCSI
+- `Median_Tone_Score`: median sentence-score aggregation
+- `Tone_Index`
+- `Clarity_Index`
+- `Legal_Load_Index`
 
-Core index columns:
-- `Mean_Tone_Score`: mean of `ToneScore_0_1` across all sentences in the institution-year
-- `Median_Tone_Score`: median of `ToneScore_0_1` across all sentences in the institution-year
-- `Tone_Index`: lexicon-based tone index built from supportive, restrictive, sanction, pronoun, and modal language features
-- `Clarity_Index`: lexicon/structure-based clarity index built from sentence length, long-sentence share, and procedural cues
-- `Legal_Load_Index`: lexicon-based legal density index built from legalese and IP technical terminology
+Additional fields include document length, lexical component measures, class shares, and institutional metadata used in descriptive analyses.
 
-Supporting aggregation columns:
-- `n_sentences`: total scored sentences in the institution-year
-- `n_words`: total words across scored sentences
-- `supportive_share`, `neutral_share`, `restrictive_share`: share of sentences assigned to each predicted class
-- `supportive_per_1000w`, `restrictive_per_1000w`, `sanction_per_1000w`: normalized lexical rates
-- `second_person_per_1000w`, `inclusive_we_per_1000w`: normalized interpersonal-language rates
-- `obligation_modal_share`: obligation-modality share relative to permission plus obligation modals
-- `mean_sentence_length`, `long_sentence_share`, `procedural_share`: sentence-structure features used in the clarity index
-- `legalese_per_1000w`, `iptech_per_1000w`: normalized legal and technical language rates
-- `madey2002_per_1000w`, `roche2011_per_1000w`: normalized case-reference term rates
+## Strengthened final-paper analyses
 
-Institution descriptors in the final file:
-- `STATE`
-- `Private`
-- `Carnegie R1`
-- `MEDSCHOOL`
-- `Urbanicity (cat)`
-- `Land-Grant Institution`
-- `Stem program`
-- `Type`
-- `Med`
-- `LG`
+`generate_strengthened_results.py` reproduces the additional exercises used to strengthen the final manuscript. The script deliberately starts from the canonical sentence scores and final panel so that the robustness checks remain downstream of the same measurement pipeline.
 
-## Model and inference
+It produces the following output families.
 
-The released NLP model is already trained. The training annotations are reflected in the released model weights:
+### Distribution and sample checks
+- `distribution_samples.csv`
 
-- `model/srn_cls_model/model.safetensors`
+Reports the baseline 4,277 policy-in-force observations and the 480 directly observed policy records separately.
 
-Inference uses that trained classifier together with the fixed temperature-scaling value stored in:
+### Alternative aggregation checks
+- `pcsi_aggregation_pearson_4277.csv`
+- `pcsi_aggregation_spearman_4277.csv`
+- `pcsi_aggregation_pearson_direct480.csv`
+- `pcsi_aggregation_spearman_direct480.csv`
+- `pcsi_aggregation_summary_4277.csv`
+- `pcsi_aggregation_agreement_4277.csv`
 
-- `model/srn_cls_model/temperature_scaling.json`
+These reconstruct median, 5% trimmed-mean, and sentence-length-weighted PCSI versions directly from sentence-level calibrated scores and then apply the canonical carry-forward structure.
 
-This package reproduces:
+### Persistence and revision dynamics
+- `variance_decomposition.csv`
+- `revision_changes.csv`
+- `revision_change_summary.csv`
 
-- sentence-level scoring
-- observed institution-year aggregation
-- year-by-year panel construction through 2025
-- sub-index construction
-- manuscript figures and tables
+The variance decomposition reports between- and within-university shares for the baseline and alternative aggregations, both in the policy-in-force panel and among directly observed records. Revision files compare consecutive observed policies within universities.
 
-It does not retrain the model from scratch.
+### Institutional robustness
+- `institutional_aggregation_robustness.csv`
+- `institutional_observed_only.csv`
 
-## Method notes for the paper
+These verify that the principal descriptive institutional differences are not artifacts of the baseline sentence aggregation or long-lasting policy versions.
 
-- GPU is an implementation detail, not a measurement choice. It changes runtime, not the construction of the index.
-- The paper should describe the classifier as a sentence-level, three-class BERT model with post-hoc temperature scaling and probability aggregation.
-- The paper should distinguish clearly between:
-  - the main BERT-based `Mean_Tone_Score`
-  - the lexicon-based `Tone_Index`
-  - `Clarity_Index`
-  - `Legal_Load_Index`
+### Linguistic interpretation and length sensitivity
+- `transparent_index_correlations.csv`
+- `linguistic_length_sensitivity.csv`
 
-## Literature support
+These report relationships among Tone, Clarity, and Legal Load and reproduce the manuscript regressions adding log policy word count or log sentence count with university-clustered standard errors.
 
-- Devlin et al. (2019), *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding*.
-- Guo et al. (2017), *On Calibration of Modern Neural Networks*.
-- Chalkidis et al. (2020), *LEGAL-BERT: The Muppets straight out of Law School*.
+### Temporal robustness
+- `temporal_common_cohorts.csv`
+- `temporal_observed_only_trends.csv`
+- `observed_policy_decade_means.csv`
+- `temporal_aggregation_robustness.csv`
+- `year2025_freshness.csv`
 
-## GitHub note
+These hold university composition fixed across multiple cohort starts, estimate trends using directly observed policies only, test alternative PCSI aggregations within the fixed 2000 cohort, and verify that the 2025 cross-section is not driven by unusually old carried-forward policies.
 
-The current fine-tuned model weights are too large for a normal GitHub commit:
+## Selected manuscript benchmarks reproduced by the strengthened script
 
-- `model/srn_cls_model/model.safetensors` is about `438 MB`
+The script contains explicit sample assertions for the final manuscript sample:
+- 4,277 policy-in-force institution-year observations;
+- 480 directly observed institution-year records; and
+- 150 universities.
 
-If the repository needs inference-ready weights, use Git LFS. Otherwise, exclude the large weight files and provide them separately.
+Key benchmark results include:
+- primary mean PCSI: about `0.437`;
+- directly observed mean PCSI: about `0.429`;
+- policy-in-force between-university variance share: about `0.610`;
+- directly observed between-university variance share: about `0.487`;
+- 330 observed policy-to-policy revision transitions;
+- median absolute revision change: about `0.021`;
+- Tone--Legal Load correlation: about `0.029`;
+- fixed-2000-cohort PCSI trend: about `-0.00112` per year; and
+- directly observed-policy university-FE trend from 1980 onward: about `-0.00117` per year.
+
+These benchmarks are intended as reproducibility checks, not additional hard-coded inputs to the analysis.
+
+## Model and inference provenance
+
+The released classifier is a fine-tuned `bert-base-uncased` three-class sentence classifier for restrictive, neutral, and supportive communicative stance.
+
+Preserved model statistics used in the paper:
+- training sentences: `2,458`
+- validation sentences: `274`
+- total preserved labeled sample: `2,732`
+- validation accuracy: about `0.901`
+- validation macro-F1: about `0.894`
+- temperature scaling parameter: `0.8462`
+
+The package reproduces inference from the saved classifier, calibration, aggregation, panel construction, and manuscript-facing analyses. It does **not** currently reproduce the original model fine-tuning from coder-level pre-adjudication records. For this reason, the manuscript does not report historical inter-rater-reliability statistics that cannot be reconstructed from the preserved files.
+
+## Interpretation
+
+PCSI measures the communicative stance encoded in formal university IP policy text. It is not a measure of:
+- the substantive generosity of IP rules;
+- legal enforceability;
+- university quality;
+- faculty perceptions; or
+- commercialization performance.
+
+Commercialization outcomes are intentionally kept outside the construction of PCSI so they can be studied subsequently as outcomes rather than embedded into the measure itself.
+
+## Environment
+
+See `requirements.txt` for the Python dependencies. The main pipeline uses pandas, NumPy, SciPy, statsmodels, matplotlib/seaborn for existing paper-output generation, and Transformers/PyTorch for classifier inference.
+
+## Large model files
+
+The fine-tuned model weights are large (`model.safetensors` is approximately 438 MB). If inference-ready weights are distributed through GitHub, Git LFS is required; otherwise the weights should be distributed through a separate archival location.
