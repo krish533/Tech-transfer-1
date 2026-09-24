@@ -81,8 +81,19 @@ def main() -> None:
         ],
         check=True,
     )
+    subprocess.run(
+        [
+            sys.executable,
+            str(paper_code_dir / "generate_final_manuscript_figures.py"),
+            "--panel-file",
+            str(primary_panel),
+            "--outdir",
+            str(package_root / "paper_outputs" / "figures"),
+        ],
+        check=True,
+    )
 
-    print("Replication package run completed for the 1944--2025 manuscript sample, including strengthened robustness outputs.")
+    print("Replication package run completed for the 1944--2025 manuscript sample, including strengthened robustness outputs and final manuscript figures.")
 
 
 if __name__ == "__main__":
