@@ -42,6 +42,10 @@ jobs:
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_federal_rd_exposure_clean.py
 
+      - name: Run extended adoption and exposure analysis
+        working-directory: P1_replication_package
+        run: python paper_outputs/code/run_stanford_roche_extended.py
+
       - name: Save NCSES source universe
         working-directory: P1_replication_package
         run: python paper_outputs/code/dump_ncses_universe.py
@@ -54,4 +58,5 @@ jobs:
             P1_replication_package/paper_outputs/tables/stanford_roche_causal/
             P1_replication_package/paper_outputs/tables/federal_rd_exposure/
             P1_replication_package/paper_outputs/tables/federal_rd_exposure_clean/
+            P1_replication_package/paper_outputs/tables/stanford_roche_extended/
           if-no-files-found: error
