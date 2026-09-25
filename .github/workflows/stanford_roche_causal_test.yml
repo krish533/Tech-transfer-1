@@ -28,7 +28,7 @@ jobs:
       - name: Install analysis dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas numpy scipy statsmodels rapidfuzz lxml html5lib beautifulsoup4
+          pip install pandas numpy scipy statsmodels rapidfuzz openpyxl
 
       - name: Run assignment-language analysis
         working-directory: P1_replication_package
