@@ -1,0 +1,77 @@
+name: Stanford-Roche causal validation
+
+on:
+  push:
+    branches:
+      - causal-stanford-roche-test
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  causal-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scipy statsmodels rapidfuzz openpyxl lxml html5lib beautifulsoup4
+      - name: Run analyses
+        working-directory: P1_replication_package
+        run: |
+          python paper_outputs/code/run_stanford_roche_causal_test.py
+          python paper_outputs/code/run_federal_rd_exposure_analysis.py
+          python paper_outputs/code/run_federal_rd_exposure_clean.py
+          python paper_outputs/code/run_stanford_roche_extended.py
+          python paper_outputs/code/run_nist_2018_assignment_rule.py
+          python paper_outputs/code/run_chain_title_risk_2008.py
+      - name: Build replication archive
+        working-directory: P1_replication_package
+        run: |
+          rm -rf /tmp/stanford_roche_replication
+          mkdir -p /tmp/stanford_roche_replication/data/derived /tmp/stanford_roche_replication/data/external /tmp/stanford_roche_replication/code /tmp/stanford_roche_replication/outputs
+          cp stanford_roche_replication/README.md /tmp/stanford_roche_replication/
+          cp stanford_roche_replication/requirements.txt /tmp/stanford_roche_replication/
+          cp data/derived/policy_level_indices_institution_year.csv /tmp/stanford_roche_replication/data/derived/
+          cp data/derived/sentence_scores_canonical.csv /tmp/stanford_roche_replication/data/derived/
+          cp data/external/ncses_fy2008_top150_sources.csv /tmp/stanford_roche_replication/data/external/
+          cp paper_outputs/code/run_stanford_roche_causal_test.py /tmp/stanford_roche_replication/code/
+          cp paper_outputs/code/run_federal_rd_exposure_analysis.py /tmp/stanford_roche_replication/code/
+          cp paper_outputs/code/run_federal_rd_exposure_clean.py /tmp/stanford_roche_replication/code/
+          cp paper_outputs/code/run_stanford_roche_extended.py /tmp/stanford_roche_replication/code/
+          cp paper_outputs/code/run_nist_2018_assignment_rule.py /tmp/stanford_roche_replication/code/
+          cp paper_outputs/code/run_chain_title_risk_2008.py /tmp/stanford_roche_replication/code/
+          cp -r paper_outputs/tables/stanford_roche_causal /tmp/stanford_roche_replication/outputs/
+          cp -r paper_outputs/tables/federal_rd_exposure_clean /tmp/stanford_roche_replication/outputs/
+          cp -r paper_outputs/tables/stanford_roche_extended /tmp/stanford_roche_replication/outputs/
+          cp -r paper_outputs/tables/nist_2018_assignment_rule /tmp/stanford_roche_replication/outputs/
+          cp -r paper_outputs/tables/chain_title_risk_2008 /tmp/stanford_roche_replication/outputs/
+          cd /tmp && zip -qr "$GITHUB_WORKSPACE/stanford_roche_replication_package.zip" stanford_roche_replication
+      - name: Upload causal-analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: stanford-roche-causal-results
+          path: |
+            P1_replication_package/paper_outputs/tables/stanford_roche_causal/
+            P1_replication_package/paper_outputs/tables/federal_rd_exposure_clean/
+            P1_replication_package/paper_outputs/tables/stanford_roche_extended/
+            P1_replication_package/paper_outputs/tables/nist_2018_assignment_rule/
+            P1_replication_package/paper_outputs/tables/chain_title_risk_2008/
+          if-no-files-found: error
+      - name: Upload replication package
+        uses: actions/upload-artifact@v4
+        with:
+          name: stanford-roche-replication-package
+          path: stanford_roche_replication_package.zip
+          if-no-files-found: error
