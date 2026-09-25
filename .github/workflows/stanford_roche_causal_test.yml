@@ -46,13 +46,9 @@ jobs:
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_stanford_roche_extended.py
 
-      - name: Run separate-paper federal R&D exposure analysis
+      - name: Run 2018 NIST assignment-rule analysis
         working-directory: P1_replication_package
-        run: python paper_outputs/code/run_federal_rd_roche_paper.py
-
-      - name: Save NCSES source universe
-        working-directory: P1_replication_package
-        run: python paper_outputs/code/dump_ncses_universe.py
+        run: python paper_outputs/code/run_nist_2018_assignment_rule.py
 
       - name: Upload causal-analysis outputs
         uses: actions/upload-artifact@v4
@@ -63,5 +59,5 @@ jobs:
             P1_replication_package/paper_outputs/tables/federal_rd_exposure/
             P1_replication_package/paper_outputs/tables/federal_rd_exposure_clean/
             P1_replication_package/paper_outputs/tables/stanford_roche_extended/
-            P1_replication_package/paper_outputs/tables/federal_rd_roche_paper/
+            P1_replication_package/paper_outputs/tables/nist_2018_assignment_rule/
           if-no-files-found: error
