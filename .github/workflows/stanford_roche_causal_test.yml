@@ -50,6 +50,10 @@ jobs:
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_nist_2018_assignment_rule.py
 
+      - name: Run FY2008 chain-of-title risk analysis
+        working-directory: P1_replication_package
+        run: python paper_outputs/code/run_chain_title_risk_2008.py
+
       - name: Upload causal-analysis outputs
         uses: actions/upload-artifact@v4
         with:
@@ -60,4 +64,5 @@ jobs:
             P1_replication_package/paper_outputs/tables/federal_rd_exposure_clean/
             P1_replication_package/paper_outputs/tables/stanford_roche_extended/
             P1_replication_package/paper_outputs/tables/nist_2018_assignment_rule/
+            P1_replication_package/paper_outputs/tables/chain_title_risk_2008/
           if-no-files-found: error
