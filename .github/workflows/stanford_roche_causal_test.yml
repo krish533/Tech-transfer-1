@@ -34,9 +34,13 @@ jobs:
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_stanford_roche_causal_test.py
 
-      - name: Run federal R&D exposure analysis
+      - name: Run exploratory federal R&D exposure analysis
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_federal_rd_exposure_analysis.py
+
+      - name: Run audited federal R&D exposure analysis
+        working-directory: P1_replication_package
+        run: python paper_outputs/code/run_federal_rd_exposure_clean.py
 
       - name: Save NCSES source universe
         working-directory: P1_replication_package
@@ -49,4 +53,5 @@ jobs:
           path: |
             P1_replication_package/paper_outputs/tables/stanford_roche_causal/
             P1_replication_package/paper_outputs/tables/federal_rd_exposure/
+            P1_replication_package/paper_outputs/tables/federal_rd_exposure_clean/
           if-no-files-found: error
