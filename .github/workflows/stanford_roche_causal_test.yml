@@ -38,6 +38,10 @@ jobs:
         working-directory: P1_replication_package
         run: python paper_outputs/code/run_federal_rd_exposure_analysis.py
 
+      - name: Save NCSES source universe
+        working-directory: P1_replication_package
+        run: python paper_outputs/code/dump_ncses_universe.py
+
       - name: Upload causal-analysis outputs
         uses: actions/upload-artifact@v4
         with:
