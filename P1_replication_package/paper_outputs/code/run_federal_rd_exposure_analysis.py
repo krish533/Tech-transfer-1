@@ -37,20 +37,43 @@ def numeric(s: pd.Series) -> pd.Series:
 
 def read_rank_xlsx(url: str, prefix: str) -> pd.DataFrame:
     raw = pd.read_excel(url, header=None, engine="openpyxl")
-    # Find the row containing Institution and 2010, then promote it to header.
     header_row = None
     for i in range(min(25, len(raw))):
-        vals = raw.iloc[i].astype(str).tolist()
-        if any("Institution" in v for v in vals) and any("2010" in v for v in vals):
+        vals = [str(v) for v in raw.iloc[i].tolist()]
+        if any("Institution" in str(v) for v in vals) and any("2010" in str(v) for v in vals):
             header_row = i
             break
     if header_row is None:
-        raise ValueError(f"Could not locate header row in {url}")
-    header = raw.iloc[header_row].astype(str).str.strip().tolist()
-    d = raw.iloc[header_row + 1 :].copy()
-    d.columns = header
-    inst_candidates = [c for c in d.columns if "Institution" in c]
-    year_candidates = [c for c in d.columns if re.search(r"(?<!\d)2010(?!\d)", c)]
+        # Some NCSES workbooks use a two-line header. Locate Institution first and combine it with next row.
+        for i in range(min(25, len(raw) - 1)):
+            vals = [str(v) for v in raw.iloc[i].tolist()]
+            next_vals = [str(v) for v in raw.iloc[i + 1].tolist()]
+            if any("Institution" in str(v) for v in vals) and any("2010" in str(v) for v in next_vals):
+                header_row = i
+                combined = []
+                for a, b in zip(vals, next_vals):
+                    aa = "" if a.lower() == "nan" else a.strip()
+                    bb = "" if b.lower() == "nan" else b.strip()
+                    combined.append((aa + " " + bb).strip())
+                header = combined
+                d = raw.iloc[i + 2 :].copy()
+                break
+        else:
+            raise ValueError(f"Could not locate header row in {url}; preview={raw.head(12).astype(str).to_dict(orient='split')}")
+    else:
+        header = [str(v).strip() for v in raw.iloc[header_row].tolist()]
+        d = raw.iloc[header_row + 1 :].copy()
+    # Ensure unique column labels for pandas 3.x.
+    seen = {}
+    unique_header = []
+    for j, h in enumerate(header):
+        h = h if h and h.lower() != "nan" else f"col_{j}"
+        n = seen.get(h, 0)
+        seen[h] = n + 1
+        unique_header.append(h if n == 0 else f"{h}_{n}")
+    d.columns = unique_header
+    inst_candidates = [c for c in d.columns if "Institution" in str(c)]
+    year_candidates = [c for c in d.columns if re.search(r"(?<!\d)2010(?!\d)", str(c))]
     if not inst_candidates or not year_candidates:
         raise ValueError(f"Institution/2010 columns not found in {url}: {list(d.columns)}")
     inst_col = inst_candidates[0]
@@ -97,7 +120,6 @@ def build_exposure(panel: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
             rows.append({"Institution": inst, "policy_norm": key, "ncses_name": None, "match_score": np.nan, "accepted": 0})
             continue
         candidate = n[n["norm"] == match_norm].iloc[0]
-        # High threshold because false university matches are more damaging than lost observations.
         accepted = int(score >= 90)
         rows.append({"Institution": inst, "policy_norm": key, "ncses_name": candidate["ncses_name"], "match_score": score,
                      "accepted": accepted, "total_2010": candidate["total_2010"], "fed_2010": candidate["fed_2010"]})
