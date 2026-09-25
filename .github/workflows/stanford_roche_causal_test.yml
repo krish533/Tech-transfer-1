@@ -1,0 +1,42 @@
+name: Stanford-Roche causal validation
+
+on:
+  push:
+    branches:
+      - causal-stanford-roche-test
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  causal-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scipy statsmodels
+
+      - name: Run Stanford-Roche analysis
+        working-directory: P1_replication_package
+        run: python paper_outputs/code/run_stanford_roche_causal_test.py
+
+      - name: Upload causal-analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: stanford-roche-causal-results
+          path: P1_replication_package/paper_outputs/tables/stanford_roche_causal/
+          if-no-files-found: error
