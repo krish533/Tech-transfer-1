@@ -1,0 +1,191 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,booktabs,threeparttable,tabularx,array,graphicx,float,caption,subcaption,longtable}
+\usepackage[round,authoryear]{natbib}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{setspace}\onehalfspacing
+\usepackage{enumitem}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\pcsi}{\mathrm{PCSI}}
+\newcommand{\pcsiimage}[1]{\IfFileExists{#1}{\includegraphics[width=.9\linewidth]{#1}}{\fbox{\parbox{.83\linewidth}{\centering Figure is in the replication package. Import the entire repository into Overleaf to display it.}}}}
+\title{Communication as Governance:\\Measuring Communicative Stance in University Intellectual Property Policies}
+\author{Working Paper}
+\date{Revised October 2026}
+\begin{document}\maketitle
+\begin{abstract}\noindent
+University intellectual-property policies govern formal rights but also communicate institutional authority, obligations, and support. We develop a human-anchored Policy Communication Stance Index (PCSI) using 87,159 sentences from 518 policy documents across 150 U.S. research universities (1944--2025). Communicative stance varies substantially across institutions, with most observations exhibiting greater restrictive than supportive language. Institutional characteristics explain only a limited share of this variation. We also document a downward trend in supportive relative to restrictive communication over time. The index introduces a measurable dimension of university governance distinct from formal legal provisions and commercialization outcomes.
+\end{abstract}
+\noindent\textbf{Keywords:} institutional governance; policy communication; university technology transfer; intellectual property; text as data; organizational heterogeneity
+\par\noindent\textbf{JEL codes:} O34, O38, I23, C55, K11
+
+\section{Introduction}
+Universities govern intellectual property through rules that allocate ownership, establish disclosure obligations, and determine how inventions move toward commercialization. A substantial literature examines how these arrangements shape academic research and technology transfer, with particular attention to patent ownership, inventor incentives, licensing practices, and university--industry relationships \citep{mowery2001,mowery2004,sampat2006,thursby2002,jensen2003,feldman2002,siegel2003,siegel2007,perkmann2013}. Yet institutional policies also communicate how universities understand and exercise their authority over research discoveries. The language through which universities explain obligations, discretion, and available assistance is an observable feature of governance that has received considerably less systematic measurement.
+
+This paper studies that communicative dimension of formal university governance. Intellectual-property policies do more than state ownership, disclosure, assignment, and administrative procedures. They also express relationships of authority, obligation, discretion, and support \citep{smith2001,cooren2004,fairhurst2004}. Two universities can require a comparable action while using quite different language to explain it. One might frame disclosure as categorical compliance; another might describe the same administrative obligation alongside guidance and institutional assistance. We call this distinction \emph{communicative stance}. It is a property of the written policy, not a judgment about whether the underlying rule is legally generous or effective.
+
+The distinction has an institutional rationale. Organization theory examines how formal texts convey authority, organize meaning, and stabilize expectations \citep{phillips2004,putnam2009,weick1995,maitlis2014,scott2014}. Scholarship on organizational policy communication has also measured practices and channels through which policies are communicated \citep{canary2013}. Our object is narrower: the supportive, neutral, or restrictive stance encoded in policy sentences themselves. Formal rules and the language communicating those rules may overlap, but they need not coincide. In particular, this paper measures the latter without claiming to identify its behavioral effect.
+
+We construct the Policy Communication Stance Index (PCSI) from 518 source documents at 150 U.S. research universities spanning 1944--2025. The corpus includes 87,159 cleaned sentences. Pooling multiple sources for a university-year yields 480 university-years with directly observed policy text. Carrying the most recent source score forward until a newer policy appears produces 4,277 policy-in-force annual observations. Human-labeled sentences define restrictive, neutral, and supportive communication; a fine-tuned contextual classifier extends the judgments to the full corpus; and calibrated class probabilities are aggregated to policy-level scores. This sequence follows the text-as-data literature's emphasis on defining the construct before applying predictive tools \citep{grimmer2013,gentzkow2019,grimmer2022,adcock2001}.
+
+The results provide four connected observations. The policy-in-force distribution is concentrated below the scale midpoint: mean PCSI is 0.437, and 86.0 percent of observations have greater restrictive than supportive probability mass. Average PCSI declines over the modern period; the negative pattern remains within fixed university cohorts and among years with directly observed source text. At the same time, variation across universities is substantial, although broad institutional characteristics explain only a modest share of it when modeled jointly. Finally, transparent linguistic diagnostics indicate that tone is an important correlate of PCSI, but readability and legal terminology do not simply reproduce the supervised index.
+
+These patterns do not establish that language changes commercialization outcomes. Rather, they show that written communicative stance is a measurable dimension of university governance. An important question for subsequent research is whether differences remain after comparing passages addressing the same underlying legal obligation, and whether these differences shape faculty understanding or institutional practice.
+
+Section 2 develops the measure and documents its limits. Section 3 presents its distribution, temporal evolution, institutional structure, and linguistic interpretation. Section 4 discusses the relationship between formal rules and communicative framing, together with limitations and prospective uses. Section 5 concludes.
+
+\section{Measuring the Policy Communication Stance Index}
+The measurement task is to translate a qualitative feature of governance---how universities communicate authority, obligations, discretion, and assistance---into a comparable policy score. We distinguish the conceptual definition from the statistical method used to apply it at scale.
+
+\subsection{Policy Texts and the Unit of Analysis}
+The corpus covers 150 U.S. research universities between 1944 and 2025. Its 518 source documents contain 87,159 cleaned sentences on ownership, disclosure, assignment, licensing authority, commercialization, and revenue distribution. Where several relevant documents share a university and year, we pool their sentences before scoring. This produces 480 university-years with source text. We then carry each policy score forward until the next observed source for the university, yielding 4,277 annual policy-in-force observations through 2025. These annual rows are \emph{not} separate policy documents; the original source year remains attached to each observation. The source-only sample offers a necessary check on inferences from the carried-forward panel.
+
+\begin{table}[htbp]\centering\caption{Corpus and Analysis Sample, 1944--2025}\label{tab:sample}
+\begin{tabular}{lr}\toprule Quantity&Value\\\midrule Universities&150\\Analysis period&1944--2025\\Source policy documents&518\\Cleaned sentences&87,159\\University-years with source policy text&480\\Annual policy-in-force university-years&4,277\\\bottomrule\end{tabular}
+\par\smallskip\begin{minipage}{0.88\linewidth}\footnotesize\emph{Notes:} Multiple documents for a university and source year are pooled. Annual values are carried forward until a newer source appears.\end{minipage}
+\end{table}
+
+\subsection{Defining Communicative Stance with Human Judgments}
+Communicative stance is the supportive, neutral, or restrictive presentation of institutional rights, obligations, authority, and assistance in policy language. It does not measure the underlying rule's generosity, ordinary sentiment, or reader reactions. Supportive sentences emphasize guidance, encouragement, assistance, collaboration, or facilitation. Restrictive sentences emphasize mandatory assignment, categorical obligations, unilateral authority, prohibition, sanctions, or compliance. Neutral sentences are chiefly definitional, descriptive, or procedural without a dominant supportive or restrictive orientation. Human coders classified complete sentences according to their dominant message, and disagreements in the preserved labeled data were adjudicated.
+
+\begin{table}[htbp]\centering\caption{Illustrative Sentence-Level Communicative Stance}\label{tab:examples}
+\begin{threeparttable}\small
+\begin{tabularx}{\linewidth}{@{}p{0.17\linewidth}Xr@{}}\toprule Class&Illustrative sentence&$\hat p_{\mathrm{class}}$\\\midrule
+Supportive&``Inventors are encouraged to consult with the OTT concerning their options regarding the release of intellectual property.''&0.973\\\addlinespace
+Neutral&``Special procedures relevant to these processes are posted on the website of the Office of the Vice President for Research and Innovation.''&0.980\\\addlinespace
+Restrictive&``As a condition of affiliation with the University, members of the University community are bound by all University policies, including this one.''&0.982\\\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize\item\emph{Notes:} University names and years are omitted from the display; underlying source-document traceability should be retained in the replication records. $\hat p_{\mathrm{class}}$ is the calibrated probability assigned to the displayed class. Illustrations are not an independent accuracy test.\end{tablenotes}
+\end{threeparttable}\end{table}
+
+\subsection{Scaling Human Judgments to the Full Corpus}
+Manual coding of more than 87,000 sentences would be impractical. We therefore use supervised natural-language processing as a scaling tool. The preserved classifier fine-tunes \texttt{bert-base-uncased} \citep{devlin2019}, a contextual model that can distinguish uses of words such as ``shall,'' ``may,'' ``support,'' and ``assign'' in surrounding text. The preserved labeled sample includes 2,732 sentences: 2,458 for training and 274 for held-out validation. Validation accuracy is 0.901 and macro-F1 is 0.894. We use post-hoc temperature scaling \citep{guo2017} before aggregating the resulting class probabilities. Appendix B documents the preserved classifier and its reproducibility boundary. Validation performance on the labeled sample should not be confused with independent validation of the aggregate index across historical periods or legal topics.
+
+\subsection{Aggregating Sentence-Level Scores}
+For sentence $i$, let $(\hat p_i^R,\hat p_i^N,\hat p_i^S)$ be the calibrated probabilities of restrictive, neutral, and supportive stance. Assigning those classes values 0, 0.5, and 1 gives
+\begin{equation}\label{eq:sentence}s_i=0.5\hat p_i^N+\hat p_i^S.\end{equation}
+For university $j$ in source year $t$, the baseline index is the unweighted mean across the $N_{jt}$ sentences in the pooled source text:
+\begin{equation}\label{eq:pcsi}\pcsi_{jt}=\frac{1}{N_{jt}}\sum_{i=1}^{N_{jt}}s_i.\end{equation}
+Equivalently, $\pcsi_{jt}=0.5+0.5(\overline{\hat p^S}-\overline{\hat p^R})_{jt}$. A score below 0.5 thus means greater average restrictive than supportive probability mass; it does not mean that every sentence is restrictive, or that the university's legal regime is unfavorable to inventors. A score of 0.5 may arise from neutral language or offsetting orientations.
+
+\subsection{Interpreting and Stress-Testing the Measure}
+We examine the sensitivity of PCSI to a within-policy median, a five-percent trimmed mean, and a sentence-length-weighted mean (Appendix C). We also create transparent textual diagnostics, used \emph{only} to interpret the supervised score. \emph{Tone} compares supportive and collaborative wording with obligation-, control-, and sanction-oriented language. \emph{Clarity} describes sentence structure and procedural guidance. \emph{Legal Load} measures legal and intellectual-property terminology. Appendix E gives the construction. None measures substantive rights or real-world implementation.
+
+\section{Empirical Patterns in University Policy Communication}
+The results address four connected questions: Where do policies lie on the communicative-stance scale? Has their written stance changed over time? How much variation occurs across universities, and what observable characteristics accompany it? Finally, which recognizable linguistic properties help interpret the supervised index?
+
+\subsection{The Distribution of Communicative Stance}
+Across the 4,277 policy-in-force university-years, mean PCSI is 0.437, median PCSI is 0.427, and the standard deviation is 0.066. The interquartile range is 0.394--0.471, with observed values between 0.264 and 0.730 (Table \ref{tab:dist}). Eighty-six percent of annual values lie below the neutral midpoint. This is an asymmetry in \emph{communication}, not a normative assessment of IP rules. A one-standard-deviation difference in PCSI corresponds to approximately 0.132 in the supportive-minus-restrictive probability margin. The below-midpoint pattern also appears among the 480 university-years with actual source text: mean PCSI is 0.429, and 89.6 percent lie below 0.5.
+
+\begin{table}[htbp]\centering\caption{Distribution and Institutional Structure of PCSI}\label{tab:dist}\small\begin{tabular}{lr}\toprule\multicolumn{2}{l}{\textit{Panel A. Distribution}}\\\midrule Mean PCSI&0.437\\Median PCSI&0.427\\Standard deviation&0.066\\25th percentile&0.394\\75th percentile&0.471\\Minimum&0.264\\Maximum&0.730\\Share below 0.50&86.0\%\\Mean, source-text years&0.429\\Share below 0.50, source-text years&89.6\%\\\addlinespace\multicolumn{2}{l}{\textit{Panel B. Institutional structure}}\\\midrule Between-university share, annual panel&0.610\\Within-university share, annual panel&0.390\\Between-university share, source-text years&0.487\\Within-university share, source-text years&0.513\\Annual policy-in-force observations&4,277\\University-years with source text&480\\Universities&150\\\bottomrule\end{tabular}
+\par\smallskip\begin{minipage}{.83\linewidth}\footnotesize\emph{Notes:} Variance shares decompose sums of squared deviations and are descriptive. The observations are not independent policy documents.\end{minipage}
+\end{table}
+
+\begin{figure}[htbp]\centering\pcsiimage{../P1_replication_package/paper_outputs/figures/fig1_pci_histogram.pdf}\caption{Distribution of the Policy Communication Stance Index}\label{fig:distribution}\par\small\emph{Notes:} Existing replication-package plot asset; verify consistency with the 4,277-observation 1944--2025 panel and regenerate from the current replication scripts before journal submission.\end{figure}
+
+\subsection{How Communicative Stance Has Changed Over Time}
+The annual mean PCSI series begins in 1978, the first year with at least five universities represented in the policy-in-force panel. Average stance is relatively high in the early 1980s and subsequently declines, reaching approximately 0.421 in 2025 (Figure \ref{fig:trend}). Because archive coverage changes over time, the raw mean alone cannot distinguish changes in language from changes in sample composition.
+
+Holding the set of universities fixed reduces that concern. Among 93 universities represented by 2000, mean PCSI declines from 0.447 in 2000 to 0.422 in 2025. The reported linear university-fixed-effects trend is $-0.00112$ annually (clustered SE $=0.00042$, $p=0.008$); analogous cohorts starting in 1990, 1995, and 2005 also exhibit negative trends. Removing carry-forward entirely gives a trend of $-0.00117$ (SE $=0.00039$, $p=0.003$) among 467 directly observed source-text university-years dated 1980 or later (Appendix F). The post-2000 source-only estimate remains negative but is less precise.
+
+These comparisons support a descriptive finding: communication moves toward the restrictive side of the defined scale in the modern part of the archive. They do not establish that substantive legal rights became more restrictive. Because the mix of policy topics and clauses may also change over time, comparisons of substantively similar provisions would be valuable future validation. Moreover, the source archive may omit actual revisions between recovered documents.
+
+\begin{figure}[htbp]\centering\pcsiimage{../P1_replication_package/paper_outputs/figures/fig3_temporal_trend.pdf}\caption{Annual Mean PCSI, Modern Sample}\label{fig:trend}\par\small\emph{Notes:} Existing replication-package plot asset; confirm coverage, sample, and labels against the current 1978--2025 results before submission. Interpret trends as descriptive; source-only and fixed-cohort checks appear in Appendix F.\end{figure}
+
+\subsection{Persistence and Differences Across Universities}
+The annual panel attributes 61.0 percent of the total variation in PCSI to between-university differences and 39.0 percent to within-university differences. Carry-forward mechanically adds persistence, however, because the score repeats until another source appears. Limiting the decomposition to source-text years reduces the between-university share to 48.7 percent and increases the within share to 51.3 percent. Thus institutional differences remain substantial without treating repeated annual scores as independently collected policies (Table \ref{tab:dist}; Appendix C).
+
+\subsection{What Institutional Characteristics Explain}
+To avoid privileging institutions with longer archived histories in cross-sectional comparisons, each university contributes one observation: its mean PCSI over years represented in the policy-in-force panel. Table \ref{tab:groups} examines Carnegie research classification and control, land-grant status, medical-school status, and urbanicity.\footnote{R1 and R2 are categories of the Carnegie research classification. Land-grant refers to a federal statutory institutional designation. The source manuscript does not identify the Carnegie classification vintage or fully document the coding reference year for these and the other institutional covariates; these items should be checked against the data dictionary before submission. The group characteristics here are descriptive, not exogenous treatments.}
+
+Private R1 universities average 0.456 compared with 0.427 for public R1 universities. Land-grant institutions average 0.420 compared with 0.442 for non-land-grant institutions. Distributional tests yield raw $p$-values of 0.004 for the four institutional-type categories and 0.010 for land-grant status; both comparisons remain below 0.05 after Holm adjustment over the four reported test families (Appendix D). Medical-school status and urbanicity are less precisely distinguished.\footnote{The Kruskal--Wallis and Wilcoxon rank-sum tests compare distributions without imposing normality. Holm-adjusted $p$-values correct the family of four reported comparisons for multiple testing.}
+
+\begin{table}[htbp]\centering\caption{Institution-Level PCSI by Institutional Characteristics}\label{tab:groups}\small\begin{tabular}{lrrrl}\toprule Group&$N$&Mean&SD&Range\\\midrule
+\multicolumn{5}{l}{\textit{Carnegie classification}}\\Private R1&38&0.456&0.046&[0.337, 0.534]\\Public R1&86&0.427&0.051&[0.328, 0.585]\\Private R2&8&0.406&0.053&[0.342, 0.459]\\Public R2&18&0.441&0.058&[0.376, 0.580]\\\addlinespace
+\multicolumn{5}{l}{\textit{Mission and program characteristics}}\\Land-grant&47&0.420&0.047&[0.338, 0.585]\\Non-land-grant&103&0.442&0.053&[0.328, 0.580]\\Medical school&118&0.438&0.053&[0.328, 0.585]\\No medical school&32&0.422&0.047&[0.342, 0.519]\\\addlinespace
+\multicolumn{5}{l}{\textit{Urbanicity}}\\Rural&15&0.425&0.041&[0.372, 0.519]\\Semi-rural&48&0.422&0.047&[0.338, 0.539]\\City&82&0.443&0.057&[0.328, 0.585]\\\bottomrule\end{tabular}
+\par\smallskip\begin{minipage}{.89\linewidth}\footnotesize\emph{Notes:} Unit is the university. Each university's PCSI is averaged across its policy-in-force years. Rank-based tests and multiplicity adjustments are shown in Appendix D. Missing urbanicity covariates affect the corresponding subgroup total.\end{minipage}\end{table}
+
+These unconditional differences partly overlap. Table \ref{tab:instreg} reports models that first include institutional type, then add mission and location characteristics, and finally region fixed effects. Relative to public R1 universities, the private-R1 coefficient decreases from 0.029 (SE 0.009) to 0.020 (SE 0.014) in the fullest model; the land-grant coefficient also becomes imprecise. The latter specification explains 16.1 percent of between-university differences. Broad categories therefore organize some observed stance without determining it.
+
+\begin{table}[htbp]\centering\caption{Institutional Correlates of PCSI}\label{tab:instreg}\small\begin{tabular}{lccc}\toprule &(1)&(2)&(3)\\\midrule
+Private R1&0.029***&0.019&0.020\\&(0.009)&(0.012)&(0.014)\\Private R2&$-0.021$&$-0.031$&$-0.035$\\&(0.021)&(0.023)&(0.023)\\Public R2&0.014&0.008&0.011\\&(0.015)&(0.020)&(0.018)\\Land-grant& & $-0.014$&$-0.011$\\& &(0.012)&(0.013)\\Medical school& &0.014&0.010\\& &(0.011)&(0.011)\\Urbanicity controls&No&Yes&Yes\\Region fixed effects&No&No&Yes\\$R^2$&0.074&0.111&0.161\\Institutions&150&145&144\\\bottomrule\end{tabular}
+\par\smallskip\begin{minipage}{.89\linewidth}\footnotesize\emph{Notes:} Dependent variable is each university's average PCSI. HC3 robust standard errors in parentheses. Public R1, rural, and Midwest are omitted categories as applicable. Columns have different samples because of missing covariates; changes across columns should not be interpreted as control-induced attenuation alone until the models are also estimated on a common sample. These are descriptive correlations. *** $p<0.01$.\end{minipage}\end{table}
+
+A further qualification concerns historical composition. Universities enter the archive in different years, so university means can cover different calendar periods. Since PCSI is trending downward on average, the regression is not automatically a comparison of institutions over a common time window. Common-sample and calendar-year-adjusted estimates are worthwhile sensitivity checks but are not reported as completed analyses here. We retain equal-university weighting as the preferred institutional estimand; weighting by the number of sentences or archival years would answer a different question and can overweight verbose policies or well-preserved archives.
+
+\subsection{What Linguistic Features Reveal About PCSI}
+Finally, we ask what recognizable textual properties accompany the supervised index. Tone, Clarity, and Legal Load are separate, transparent descriptors of the \emph{same} source text; they are not external measurements of readers' experiences or alternatives that entered the supervised classifier. Table \ref{tab:lingreg} adds the descriptors sequentially in an in-sample regression.
+
+Tone alone explains 21.6 percent of variation and has coefficient 0.064. Adding Clarity barely changes fit; adding Legal Load raises $R^2$ to 0.236. Tone and Legal Load correlate only 0.029, implying that legal-technical vocabulary does not simply overlap with the lexical tone measure. With policy-length controls, the Tone association remains, while Legal Load becomes less precise (Appendix E). The source-only analysis similarly retains a positive tone coefficient.
+
+These findings offer a partial interpretation, not an independent validation. PCSI and its linguistic diagnostics are derived from the same documents, so associations are expected. The unexplained part of PCSI may reflect contextual features that short dictionaries miss, differences in topic composition, or model error. The more decisive subsequent comparison would hold the \emph{substantive legal topic} fixed and ask whether policies still differ in communicative stance.
+
+\begin{table}[htbp]\centering\caption{Interpreting PCSI with Transparent Linguistic Features}\label{tab:lingreg}\small\begin{tabular}{lccc}\toprule &(1)&(2)&(3)\\\midrule
+Tone Index&0.064***&0.063***&0.062***\\&(0.012)&(0.012)&(0.012)\\Clarity Index&&0.001&0.006\\&&(0.008)&(0.008)\\Legal Load Index&&&0.013**\\&&&(0.006)\\$R^2$&0.216&0.216&0.236\\Observations&4,277&4,277&4,277\\Universities&150&150&150\\\bottomrule\end{tabular}
+\par\smallskip\begin{minipage}{.9\linewidth}\footnotesize\emph{Notes:} University-clustered standard errors in parentheses. The diagnostics and PCSI describe the same texts; these are interpretation exercises rather than external validation. The composite indices average standardized components, so a one-unit change in a composite is not necessarily one composite standard deviation. *** $p<0.01$; ** $p<0.05$.\end{minipage}\end{table}
+
+\section{Discussion}
+Communicative stance offers a way to observe institutional governance that is not captured simply by the existence of ownership and disclosure rules. Conceptually, the \emph{substantive provisions} of a policy and the \emph{framing} through which those provisions are conveyed are separate dimensions. The present data measure the latter imperfectly, without estimating the former as an independent legal-content construct. Accordingly, a comparison of two policies with different PCSI scores does not, by itself, establish that they impose equivalent substantive obligations.
+
+This distinction speaks to organizational theories of communication and sensemaking \citep{putnam2009,maitlis2014,fairhurst2004} and to the institutional role of formal texts \citep{smith2001,phillips2004}. It may matter through several channels. Faculty may read policy text and form beliefs about institutional obligations and available assistance. Technology-transfer personnel may use the text in training, forms, and everyday guidance. Or policy language may reflect broader administrative norms. The present corpus cannot distinguish those mechanisms, because it does not observe exposure, understanding, actual implementation, or faculty responses.
+
+The results are consistent with that bounded interpretation. Broad university characteristics account for only a modest share of average PCSI differences, and linguistic dictionaries recover only part of the supervised measure. The patterns encourage study of institutional heterogeneity while cautioning against treating a higher score as a welfare ranking. Legally valid mandatory rules can serve legitimate institutional purposes even if worded in restrictive terms. Conversely, assistance-oriented language does not guarantee favorable substantive rights or effective technology-transfer services.
+
+Several measurement constraints are particularly important. The annual panel assumes that the latest recovered document remains in force until a newer one appears; missing revisions could bias both trends and institutional comparisons. Sentence-level classification omits document ordering, headings, cross-references, and extended passages. The preserved human-adjudicated labels support saved-model inference, but coder-level pre-adjudication records are unavailable for reconstructing historical inter-rater reliability. The held-out validation set is comparatively small and does not separately establish accuracy by institution, period, or legal topic. These are reasons to treat the measure as a basis for subsequent validation, not evidence that framing already has causal consequences.
+
+A particularly informative next step is a comparison within substantive legal functions: invention disclosure, assignment, licensing authority, revenue sharing, and institutional assistance. Holding legal topics constant would clarify how much of PCSI reflects framing rather than the proportions of different types of provisions. Independent legal-expert coding of selected clauses and experiments on faculty interpretation could further connect the textual construct to substantive governance and behavior. Those extensions are not presented as analyses completed in this paper.
+
+\section{Conclusion}
+University intellectual-property policies do more than establish rights and obligations; they also express how institutions communicate authority, discretion, and support. This paper develops a measure of that communicative dimension and documents systematic differences across universities and over time.
+
+The distinction between what a policy requires and how it communicates those requirements opens several questions for future research. Do differences in communicative stance correspond to differences in faculty understanding, institutional practice, or technology-transfer outcomes? And how much of the variation reflects institutional approaches to governance rather than differences in the legal provisions being described? Addressing these questions would help establish when written policy language matters beyond the formal rules it conveys.
+
+\section*{Data and Code Availability}
+Replication materials identified in the supplied manuscript are available at \url{https://github.com/krish533/Tech-transfer-1/tree/main/P1_replication_package}. The manuscript-level editorial revisions here preserve previously reported estimates; no new regressions or expert validations were represented as completed.
+
+\appendix
+\section{Data Construction and Sample Provenance}
+The analysis includes 150 universities, 518 source documents, and 87,159 cleaned sentences over 1944--2025. Pooling source documents by university and source year gives 480 university-years with actual source text. Carrying each year's observed policy score forward through 2025 or the next observed document gives 4,277 policy-in-force university-years. The source year remains attached to each annual value. Cross-sectional regression outcomes average annual PCSI within university, assigning each institution a single observation.
+
+\section{Annotation, Model, and Replication Provenance}
+\subsection{Annotation Rubric}
+Coders classified full sentences as supportive, neutral, or restrictive on the basis of their dominant communicated orientation. Supportive language emphasized facilitation, encouragement, assistance, guidance, or collaboration. Restrictive language emphasized categorical obligations, mandatory assignment, unilateral authority, sanctions, prohibitions, or compliance. Neutral language was mainly procedural, descriptive, or definitional. The preserved artifacts contain 2,732 adjudicated labeled sentences. Pre-adjudication coder-level files were not preserved; historical inter-rater reliability cannot be recomputed from available evidence.
+\subsection{Classifier and Calibration}
+The saved classifier is a fine-tuned \texttt{bert-base-uncased} model. It has 12 transformer layers, 12 attention heads, hidden size 768, intermediate size 3,072, and a maximum input length of 256 tokens. The training set has 2,458 sentences and the held-out validation set has 274. Validation accuracy is 0.901 and macro-F1 is 0.894. The saved temperature-scaling parameter is $T=0.8462$.
+\begin{table}[htbp]\centering\caption{Preserved Classifier Configuration}\begin{tabular}{lr}\toprule Base model&\texttt{bert-base-uncased}\\Transformer layers&12\\Attention heads&12\\Hidden size&768\\Intermediate size&3,072\\Maximum input length&256 tokens\\Classes&3\\Training sentences&2,458\\Validation sentences&274\\Total labeled sentences&2,732\\Temperature parameter&0.8462\\Validation accuracy&0.901\\Validation macro-F1&0.894\\\bottomrule\end{tabular}\end{table}
+The existing replication package reproduces inference from the saved classifier, score aggregation, policy-in-force construction, and manuscript analyses. The fine-tuning history cannot presently be reproduced from original coder-level pre-adjudication records.
+
+\section{Measurement Robustness}
+\subsection{Alternative Ways of Combining Sentence Scores}
+\begin{table}[htbp]\centering\caption{Sensitivity to Alternative Sentence Aggregation Rules}\small\begin{tabular}{lrrrr}\toprule Aggregation&Mean&Pearson $r$&Spearman $\rho$&Midpoint agreement\\\midrule Baseline mean&0.437&1.000&1.000&1.000\\Median&0.471&0.623&0.878&0.937\\5\% trimmed mean&0.431&0.999&1.000&1.000\\Length-weighted mean&0.433&0.930&0.906&0.933\\\bottomrule\end{tabular}\par\small\emph{Notes:} $N=4,277$ policy-in-force annual values. Correlations and side-of-midpoint agreement refer to the baseline.\end{table}
+\subsection{Does Carry-Forward Inflate Persistence?}
+\begin{table}[htbp]\centering\caption{Between- and Within-University Variation Across Aggregations}\small\begin{tabular}{lrr}\toprule Specification&Between share&Within share\\\midrule Baseline, annual panel&0.610&0.390\\Median, annual panel&0.434&0.566\\Trimmed mean, annual panel&0.616&0.384\\Length weighted, annual panel&0.589&0.411\\Baseline, source-text years&0.487&0.513\\Median, source-text years&0.300&0.700\\Trimmed mean, source-text years&0.494&0.506\\Length weighted, source-text years&0.463&0.537\\\bottomrule\end{tabular}\end{table}
+
+\section{Institutional Robustness and Distributional Tests}
+\begin{table}[htbp]\centering\caption{Institutional Comparisons with Multiple-Testing Adjustment}\small\begin{tabular}{llrr}\toprule Characteristic&Test&Raw $p$&Holm $p$\\\midrule Carnegie classification&Kruskal--Wallis&0.004&0.014\\Land-grant&Wilcoxon rank-sum&0.010&0.029\\Urbanicity&Kruskal--Wallis&0.055&0.110\\Medical-school status&Wilcoxon rank-sum&0.172&0.172\\\bottomrule\end{tabular}\end{table}
+The private-R1 minus public-R1 mean difference is 0.029 with baseline PCSI, 0.018 with median aggregation, 0.032 with trimmed mean, and 0.032 with sentence-length weighting. Land-grant minus non-land-grant differences remain negative across these choices, ranging from $-0.020$ to $-0.024$. In source-only university averages, the private-R1/public-R1 gap is 0.033 and the land-grant/non-land-grant gap is $-0.019$.
+
+\section{Transparent Linguistic Diagnostics}
+All three indices combine policy-level standardized components, where $z(\cdot)$ indicates component standardization:
+\begin{align*}
+\mathrm{Tone}&=\tfrac16\bigl[z(\mathrm{supportive})+z(\mathrm{second\ person})+z(\mathrm{inclusive\ we})\bigr]\\
+&\quad-\tfrac16\bigl[z(\mathrm{restrictive})+z(\mathrm{sanction})+z(\mathrm{obligation\ modal\ share})\bigr],\\
+\mathrm{Clarity}&=\tfrac13\left[-z(\mathrm{mean\ sentence\ length})-z(\mathrm{long\ sentence\ share})+z(\mathrm{procedural\ share})\right],\\
+\mathrm{LegalLoad}&=\tfrac12\left[z(\mathrm{legalese})+z(\mathrm{IP\ technical})\right].
+\end{align*}
+The relevant dictionaries, sentence-length rules, and normalization are implemented in the replication code. The correlation of Tone with Clarity is 0.143, Tone with Legal Load is 0.029, and Clarity with Legal Load is $-0.296$.
+\begin{table}[htbp]\centering\caption{Linguistic Decomposition with Policy-Length Controls}\small\begin{tabular}{lccc}\toprule &Baseline&+ Log words&+ Log sentences\\\midrule Tone&0.062***&0.059***&0.059***\\&(0.012)&(0.012)&(0.012)\\Clarity&0.006&0.006&0.008\\&(0.008)&(0.008)&(0.009)\\Legal Load&0.013**&0.010&0.010\\&(0.006)&(0.007)&(0.007)\\Length control&No&Log words&Log sentences\\$R^2$&0.236&0.244&0.241\\Observations&4,277&4,277&4,277\\\bottomrule\end{tabular}\par\small\emph{Notes:} University-clustered standard errors. *** $p<0.01$, ** $p<0.05$.\end{table}
+In the 480 source-text observations, the three-index model yields Tone 0.038, Clarity 0.013, Legal Load 0.012, and $R^2=0.151$. Tone remains positive and precisely estimated. Adding log word count gives a Tone coefficient of 0.035 and Legal Load of 0.009.
+
+\section{Temporal Robustness}
+\subsection{Fixed University Cohorts}
+\begin{table}[htbp]\centering\caption{PCSI Trends Within Fixed University Cohorts}\small\begin{tabular}{rrrrrr}\toprule Start&Universities&Start mean&2025 mean&FE annual trend&$p$\\\midrule 1990&34&0.461&0.421&$-0.00109$&0.019\\1995&53&0.454&0.422&$-0.00131$&0.002\\2000&93&0.447&0.422&$-0.00112$&0.008\\2005&114&0.439&0.420&$-0.00103$&0.011\\\bottomrule\end{tabular}\end{table}
+\subsection{Source-Text-Only Years}
+\begin{table}[htbp]\centering\caption{Temporal Trends Using Only Years with Source Policy Text}\small\begin{tabular}{rrrrr}\toprule Start year&$N$&Pooled trend&University-FE trend&FE $p$\\\midrule 1980&467&$-0.00115$&$-0.00117$&0.003\\1990&443&$-0.00121$&$-0.00128$&0.016\\2000&367&$-0.00109$&$-0.00150$&0.105\\\bottomrule\end{tabular}\end{table}
+These comparisons indicate that the negative modern trend is not solely explained by carry-forward or changes in which universities are observed, though they do not identify its causes.
+
+\clearpage
+\input{references_manual.tex}
+\end{document}
