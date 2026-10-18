@@ -9,7 +9,7 @@
 \usepackage{enumitem}
 \captionsetup{font=small,labelfont=bf}
 \newcommand{\pcsi}{\mathrm{PCSI}}
-\newcommand{\pcsiimage}[1]{\IfFileExists{#1}{\includegraphics[width=.9\linewidth]{#1}}{\fbox{\parbox{.83\linewidth}{\centering Figure is in the replication package. Import the entire repository into Overleaf to display it.}}}}
+\newcommand{\pcsiimage}[2]{\IfFileExists{#1}{\includegraphics[width=.9\linewidth]{#1}}{\IfFileExists{#2}{\includegraphics[width=.9\linewidth]{#2}}{\fbox{\parbox{.83\linewidth}{\centering Figure asset unavailable. Import the entire GitHub repository into Overleaf to display this figure.}}}}}
 \title{Communication as Governance:\\Measuring Communicative Stance in University Intellectual Property Policies}
 \author{Working Paper}
 \date{Revised October 2026}
@@ -82,7 +82,7 @@ Across the 4,277 policy-in-force university-years, mean PCSI is 0.437, median PC
 \par\smallskip\begin{minipage}{.83\linewidth}\footnotesize\emph{Notes:} Variance shares decompose sums of squared deviations and are descriptive. The observations are not independent policy documents.\end{minipage}
 \end{table}
 
-\begin{figure}[htbp]\centering\pcsiimage{../P1_replication_package/paper_outputs/figures/fig1_pci_histogram.pdf}\caption{Distribution of the Policy Communication Stance Index}\label{fig:distribution}\par\small\emph{Notes:} Existing replication-package plot asset; verify consistency with the 4,277-observation 1944--2025 panel and regenerate from the current replication scripts before journal submission.\end{figure}
+\begin{figure}[htbp]\centering\pcsiimage{P1_replication_package/paper_outputs/figures/fig1_pci_histogram.pdf}{../P1_replication_package/paper_outputs/figures/fig1_pci_histogram.pdf}\caption{Distribution of the Policy Communication Stance Index}\label{fig:distribution}\par\small\emph{Notes:} Existing replication-package plot asset; verify consistency with the 4,277-observation 1944--2025 panel and regenerate from the current replication scripts before journal submission.\end{figure}
 
 \subsection{How Communicative Stance Has Changed Over Time}
 The annual mean PCSI series begins in 1978, the first year with at least five universities represented in the policy-in-force panel. Average stance is relatively high in the early 1980s and subsequently declines, reaching approximately 0.421 in 2025 (Figure \ref{fig:trend}). Because archive coverage changes over time, the raw mean alone cannot distinguish changes in language from changes in sample composition.
@@ -91,7 +91,7 @@ Holding the set of universities fixed reduces that concern. Among 93 universitie
 
 These comparisons support a descriptive finding: communication moves toward the restrictive side of the defined scale in the modern part of the archive. They do not establish that substantive legal rights became more restrictive. Because the mix of policy topics and clauses may also change over time, comparisons of substantively similar provisions would be valuable future validation. Moreover, the source archive may omit actual revisions between recovered documents.
 
-\begin{figure}[htbp]\centering\pcsiimage{../P1_replication_package/paper_outputs/figures/fig3_temporal_trend.pdf}\caption{Annual Mean PCSI, Modern Sample}\label{fig:trend}\par\small\emph{Notes:} Existing replication-package plot asset; confirm coverage, sample, and labels against the current 1978--2025 results before submission. Interpret trends as descriptive; source-only and fixed-cohort checks appear in Appendix F.\end{figure}
+\begin{figure}[htbp]\centering\pcsiimage{P1_replication_package/paper_outputs/figures/fig3_temporal_trend_pcsi.pdf}{../P1_replication_package/paper_outputs/figures/fig3_temporal_trend_pcsi.pdf}\caption{Annual Mean PCSI, Modern Sample}\label{fig:trend}\par\small\emph{Notes:} Existing replication-package plot asset; confirm coverage, sample, and labels against the current 1978--2025 results before submission. Interpret trends as descriptive; source-only and fixed-cohort checks appear in Appendix F.\end{figure}
 
 \subsection{Persistence and Differences Across Universities}
 The annual panel attributes 61.0 percent of the total variation in PCSI to between-university differences and 39.0 percent to within-university differences. Carry-forward mechanically adds persistence, however, because the score repeats until another source appears. Limiting the decomposition to source-text years reduces the between-university share to 48.7 percent and increases the within share to 51.3 percent. Thus institutional differences remain substantial without treating repeated annual scores as independently collected policies (Table \ref{tab:dist}; Appendix C).
@@ -187,5 +187,5 @@ In the 480 source-text observations, the three-index model yields Tone 0.038, Cl
 These comparisons indicate that the negative modern trend is not solely explained by carry-forward or changes in which universities are observed, though they do not identify its causes.
 
 \clearpage
-\input{references_manual.tex}
+\IfFileExists{references_manual.tex}{\input{references_manual.tex}}{\input{Paper1_Revised/references_manual.tex}}
 \end{document}
