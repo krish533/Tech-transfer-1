@@ -24,7 +24,7 @@
 ## Before journal submission
 
 - Verify the exact Carnegie classification vintage, timing of institutional characteristics, and original source-document identifiers for Table 2.
-- Common-sample Table 5 and the bounded sensitivity checks have been rerun. Exact reproducibility script: `P1_replication_package/paper_outputs/code/rerun_table5.py`; audit report and checked numeric output: `P1_replication_package/paper_outputs/tables/table5_rerun/`. Run the script against the tracked canonical datasets in your local Python environment.
+- Common-sample Table 5 and the bounded sensitivity checks have been rerun. Exact reproducibility script: `P1_replication_package/paper_outputs/code/rerun_table5.py`; audit report and checked numeric output: `P1_replication_package/paper_outputs/tables/table5_rerun/`. The checked numeric outputs are committed. Run the script against the tracked canonical datasets in your local Python environment to independently reproduce and verify them.
 - The keyword-based topic-composition sensitivity is exploratory and **not** the definitive within-topic PCSI analysis. For the latter, join sentence-level classifier scores to expert-validated, substantively comparable legal-policy topics.
 - Inspect plotted figures against replication originals (the supplied PDF had overlapping/obsolete caption text).
 - Check all bibliography metadata against the original reference library; this reconstruction preserves the cited works but has abbreviated some bibliography titles.
@@ -32,4 +32,4 @@
 This deliverable combines editorial revisions with re-estimated institutional coefficients and bounded sensitivity checks from the existing canonical replication files. No classifier retraining or new causal analysis was performed.
 ## GitHub branch notes
 
-This directory was added on the `paper1-manuscript-revision` branch without changing `main`. The manuscript source and both reference formats are here; plots are referenced from the existing replication package to avoid committing reconstructed raster crops. No new estimates have been run.
+This directory was added on the `paper1-manuscript-revision` branch without changing `main`. The manuscript source and both reference formats are here; plots are referenced from the existing replication package to avoid committing reconstructed raster crops. The Table 5 models and bounded sensitivity checks were subsequently re-estimated from the canonical data; see `P1_replication_package/paper_outputs/tables/table5_rerun/README.md` and `verified_private_r1_results.csv`.
