@@ -19,7 +19,7 @@
 - Table 5 preserved **unchanged** rather than inventing new common-sample, weighted, or year-adjusted coefficients; the interpretation explicitly identifies the sample-composition issue.
 - Conclusion shortened, with testable future research directions.
 - All main tables and appendix tables reconstructed from the supplied PDF; repeated old captions and rogue Section 6.4 text omitted.
-- This GitHub branch points to the existing replication-package PDF figures (`fig1_pci_histogram.pdf` and `fig3_temporal_trend.pdf`). The separate standalone Overleaf ZIP instead includes image crops from the supplied PDF. Confirm that the GitHub figures match the manuscript's updated statistics and regenerate them from current replication code before submission.
+- This GitHub branch points to the existing replication-package PDF figures (`fig1_pci_histogram.pdf` and `fig3_temporal_trend_pcsi.pdf`). The separate standalone Overleaf ZIP instead includes image crops from the supplied PDF. Confirm that the GitHub figures match the manuscript's updated statistics and regenerate them from current replication code before submission.
 
 ## Before journal submission
 
