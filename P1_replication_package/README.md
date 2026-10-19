@@ -220,6 +220,10 @@ Key benchmarks:
 - Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.028`, topic composition about `-0.003`; within rule forms about `-0.030`, rule-form composition about `+0.002`.
 - Rule form (deontic x sanction cells) explains about `4.8%` of sentence-level variance in stance; PCSI net of rule form correlates about `0.94` with baseline PCSI.
 
+### Verifying classifier inference
+
+The model weights are stored with Git LFS (`git lfs pull` after cloning). `paper_outputs/code/verify_inference_reproducibility.py --n 2000` rescores a random sample of sentences with the preserved model and temperature and compares the calibrated probabilities and labels with `sentence_scores_canonical.csv`; results are written to `paper_outputs/tables/revision_analyses/inference_reproducibility.csv`. A full rescore of all 87,160 sentences (`pipeline/run_all.py`) takes several hours on a CPU.
+
 ### Inter-rater reliability
 
 `paper_outputs/code/compute_interrater_reliability.py` draws a fresh random sample of corpus sentences for double-coding and scores the completed sheet:
