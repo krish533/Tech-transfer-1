@@ -1,0 +1,28 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Interpreting PCSI with Transparent Linguistic Features}
+\label{tab:linguistic}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+ & (1) & (2) & (3) \\
+\midrule
+Tone Index & 0.064*** & 0.063*** & 0.062*** \\
+ & (0.012) & (0.012) & (0.012) \\
+Clarity Index &  & 0.001 & 0.006 \\
+ &  & (0.008) & (0.008) \\
+Legal Load Index &  &  & 0.013** \\
+ &  &  & (0.006) \\
+\midrule
+$R^2$ & 0.216 & 0.216 & 0.236 \\
+Shapley share of $R^2$: Tone / Clarity / Legal Load & & & 0.89 / 0.02 / 0.09 \\
+\quad Same, years with source text & & & 0.78 / 0.14 / 0.09 \\
+Observations & 4,277 & 4,277 & 4,277 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item \textit{Notes:} Dependent variable is policy-in-force PCSI; 150 universities. Standard errors clustered by university are in parentheses. Shapley shares average each index's marginal contribution to $R^2$ over all orders of entry and sum to one. Each diagnostic combines standardized components, so one unit of a composite should not be read as one standard deviation of that composite. *** $p<0.01$; ** $p<0.05$; * $p<0.10$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

@@ -1,0 +1,9 @@
+Sample,Feature,Shapley R2,Share of explained
+"Policy-in-force panel (N=4,277)",Tone,0.2094,0.886
+"Policy-in-force panel (N=4,277)",Clarity,0.0052,0.022
+"Policy-in-force panel (N=4,277)",Legal Load,0.0217,0.092
+"Policy-in-force panel (N=4,277)",Total,0.2363,1.0
+Source-text years (N=480),Tone,0.1173,0.778
+Source-text years (N=480),Clarity,0.0204,0.135
+Source-text years (N=480),Legal Load,0.013,0.086
+Source-text years (N=480),Total,0.1507,1.0

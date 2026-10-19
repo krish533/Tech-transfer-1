@@ -1,0 +1,6 @@
+Rule form,Share of sentences,Mean sentence score,SD,Restrictive share,Supportive share
+Obligation,0.314,0.329,0.275,0.466,0.105
+Prohibition,0.072,0.43,0.342,0.47,0.316
+Permission,0.138,0.431,0.315,0.406,0.246
+No deontic operator,0.475,0.467,0.258,0.226,0.16
+Sanction language (any form),0.037,0.334,0.282,0.487,0.124

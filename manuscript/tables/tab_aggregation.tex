@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Sensitivity to Alternative Sentence Aggregation Rules}
+\label{tab:aggregation}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Aggregation & Mean & Pearson $r$ & Spearman $\rho$ & Midpoint agreement \\
+\midrule
+Baseline (unweighted mean) & 0.437 & 1.000 & 1.000 & 1.000 \\
+Median PCSI & 0.471 & 0.623 & 0.878 & 0.937 \\
+5\% trimmed mean & 0.431 & 0.999 & 1.000 & 1.000 \\
+Length-weighted mean & 0.433 & 0.930 & 0.906 & 0.933 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item \textit{Notes:} $N = 4{,}277$ policy-in-force university-years. Correlations are with baseline PCSI. Midpoint agreement is the share of observations that the baseline and the alternative place on the same side of 0.50.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

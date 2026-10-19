@@ -1,0 +1,10 @@
+Topic,Share of sentences (multi-label),Share as primary topic,Mean sentence score,Restrictive share
+Ownership & assignment,0.142,0.142,0.335,0.552
+Disclosure,0.057,0.045,0.357,0.452
+Revenue sharing,0.131,0.105,0.453,0.372
+Licensing & commercialization,0.133,0.06,0.432,0.379
+Sponsored research & third parties,0.131,0.068,0.341,0.505
+Copyright & software,0.092,0.039,0.412,0.368
+Administration & disputes,0.141,0.097,0.425,0.252
+Definitions & scope,0.083,0.035,0.448,0.245
+Other / general,0.409,0.409,0.427,0.31
