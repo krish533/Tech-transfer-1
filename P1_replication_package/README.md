@@ -220,6 +220,18 @@ Key benchmarks:
 - Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.028`, topic composition about `-0.003`; within rule forms about `-0.030`, rule-form composition about `+0.002`.
 - Rule form (deontic x sanction cells) explains about `4.8%` of sentence-level variance in stance; PCSI net of rule form correlates about `0.94` with baseline PCSI.
 
+### Inter-rater reliability
+
+`paper_outputs/code/compute_interrater_reliability.py` draws a fresh random sample of corpus sentences for double-coding and scores the completed sheet:
+
+```bash
+python paper_outputs/code/compute_interrater_reliability.py draw --n 400 --seed 20261019   # writes data/annotation/irr_coding_sheet.csv
+# two coders fill coder1 and coder2 independently; adjudicate disagreements in "adjudicated"
+python paper_outputs/code/compute_interrater_reliability.py score
+```
+
+Scoring writes `paper_outputs/tables/revision_analyses/interrater_reliability.csv` (raw agreement, Cohen's kappa, class-specific agreement, and classifier agreement and macro-F1 against the adjudicated labels) and `manuscript/irr_numbers.tex`, which the manuscript reads automatically in place of its red placeholders.
+
 ## Selected manuscript benchmarks reproduced by the strengthened script
 
 The code contains explicit sample assertions for the final manuscript sample:
