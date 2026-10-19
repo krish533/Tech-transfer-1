@@ -92,6 +92,11 @@ def main() -> None:
         ],
         check=True,
     )
+    subprocess.run(
+        [sys.executable, str(paper_code_dir / "generate_revision_analyses.py")],
+        check=True,
+        cwd=str(paper_code_dir),
+    )
 
     print("Replication package run completed for the 1944--2025 manuscript sample, including strengthened robustness outputs and final manuscript figures.")
 

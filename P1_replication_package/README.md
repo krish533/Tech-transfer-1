@@ -195,6 +195,28 @@ These report relationships among Tone, Clarity, and Legal Load and reproduce the
 
 These hold university composition fixed across multiple cohort starts, estimate trends using directly observed policies only, test alternative PCSI aggregations within the fixed 2000 cohort, and verify that the 2025 cross-section is not driven by unusually old carried-forward policies.
 
+## Revision analyses (October 2026)
+
+`paper_outputs/code/generate_revision_analyses.py` adds the exercises used in the October 2026 revision. It runs last in `pipeline/run_all.py` and can be run alone from the package root:
+
+```bash
+python paper_outputs/code/generate_revision_analyses.py
+```
+
+Outputs in `paper_outputs/tables/revision_analyses/`:
+- `table5_institutional_robustness.csv`: institutional correlates under the published specifications, Column (1) on the common 144-university sample, WLS (weights = source policy years; = sentences), era-adjusted university means (panel demeaned by calendar year), and source-text university-years with source-year fixed effects and university-clustered SEs.
+- `archive_vintage_by_type.csv`: mean source-policy year by institutional type.
+- `table6_shapley_r2.csv`: Shapley (dominance-analysis) shares of R^2 for Tone, Clarity and Legal Load, which do not depend on the order of entry.
+- `topic_coverage.csv`, `topic_within_trends.csv`, `topic_shift_share.csv`: keyword-based clause topics (ownership/assignment, disclosure, revenue sharing, licensing, sponsored research, copyright/software, administration, definitions), within-topic university-FE trends on source-text years from 1980, and a within-topic vs. composition shift-share for the 63 universities with source text in both 1980--1999 and 2010--2025.
+
+Figure: `paper_outputs/figures/fig_topic_trends.pdf`.
+
+Key benchmarks:
+- Private R1 vs. public R1, source-text years with year FE, full controls and region FE: about `0.040` (clustered SE about `0.012`); land-grant: about `-0.005` (not significant).
+- Shapley share of explained R^2 attributable to Tone: about `0.89` (panel) and `0.78` (source-text years).
+- Within-university trend, ownership/assignment sentences: about `-0.0003` per year (not significant); all sentences: about `-0.00117`.
+- Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.043`, composition about `-0.004`.
+
 ## Selected manuscript benchmarks reproduced by the strengthened script
 
 The code contains explicit sample assertions for the final manuscript sample:

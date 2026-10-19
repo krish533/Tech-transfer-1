@@ -1,0 +1,92 @@
+Sample / estimator,Specification,Term,Coef,SE,p,N,R2
+Published (HC3),(1) Type only,Private R1,0.0293,0.0093,0.0017,150,0.074
+Published (HC3),(1) Type only,Private R2,-0.0205,0.0207,0.3208,150,0.074
+Published (HC3),(1) Type only,Public R2,0.0143,0.0151,0.3442,150,0.074
+Common 144 sample (HC3),(1) Type only,Private R1,0.0289,0.0094,0.0021,144,0.072
+Common 144 sample (HC3),(1) Type only,Private R2,-0.0209,0.0207,0.3136,144,0.072
+Common 144 sample (HC3),(1) Type only,Public R2,0.0112,0.0189,0.5511,144,0.072
+WLS: weight = source policy years (HC3),(1) Type only,Private R1,0.0268,0.0104,0.0101,144,0.057
+WLS: weight = source policy years (HC3),(1) Type only,Private R2,-0.0192,0.02,0.3355,144,0.057
+WLS: weight = source policy years (HC3),(1) Type only,Public R2,0.017,0.0236,0.4723,144,0.057
+WLS: weight = sentences (HC3),(1) Type only,Private R1,0.0209,0.0136,0.1243,144,0.053
+WLS: weight = sentences (HC3),(1) Type only,Private R2,-0.0005,0.033,0.9879,144,0.053
+WLS: weight = sentences (HC3),(1) Type only,Public R2,0.0351,0.0239,0.1429,144,0.053
+Era-adjusted means: year-demeaned panel (HC3),(1) Type only,Private R1,0.0285,0.0093,0.0023,144,0.072
+Era-adjusted means: year-demeaned panel (HC3),(1) Type only,Private R2,-0.0218,0.0209,0.2989,144,0.072
+Era-adjusted means: year-demeaned panel (HC3),(1) Type only,Public R2,0.0109,0.0187,0.562,144,0.072
+Source-text years + year FE (clustered),(1) Type only,Private R1,0.0402,0.0097,0.0,452,0.251
+Source-text years + year FE (clustered),(1) Type only,Private R2,-0.0028,0.017,0.8686,452,0.251
+Source-text years + year FE (clustered),(1) Type only,Public R2,0.0052,0.0114,0.6474,452,0.251
+Source-text years 1980+ + year FE (clustered),(1) Type only,Private R1,0.0392,0.0096,0.0,439,0.206
+Source-text years 1980+ + year FE (clustered),(1) Type only,Private R2,-0.0031,0.0169,0.8525,439,0.206
+Source-text years 1980+ + year FE (clustered),(1) Type only,Public R2,0.0035,0.0115,0.7624,439,0.206
+Published (HC3),"(2) + LG, Med, Urbanicity",Private R1,0.019,0.0121,0.1157,145,0.111
+Published (HC3),"(2) + LG, Med, Urbanicity",Private R2,-0.0306,0.0226,0.1769,145,0.111
+Published (HC3),"(2) + LG, Med, Urbanicity",Public R2,0.0075,0.0201,0.7077,145,0.111
+Published (HC3),"(2) + LG, Med, Urbanicity",Land-grant,-0.0138,0.0122,0.2582,145,0.111
+Published (HC3),"(2) + LG, Med, Urbanicity",Medical school,0.0136,0.0108,0.2081,145,0.111
+Common 144 sample (HC3),"(2) + LG, Med, Urbanicity",Private R1,0.0189,0.0121,0.1178,144,0.111
+Common 144 sample (HC3),"(2) + LG, Med, Urbanicity",Private R2,-0.0306,0.0227,0.1765,144,0.111
+Common 144 sample (HC3),"(2) + LG, Med, Urbanicity",Public R2,0.0075,0.0201,0.7081,144,0.111
+Common 144 sample (HC3),"(2) + LG, Med, Urbanicity",Land-grant,-0.0135,0.0125,0.2795,144,0.111
+Common 144 sample (HC3),"(2) + LG, Med, Urbanicity",Medical school,0.0136,0.0108,0.2076,144,0.111
+WLS: weight = source policy years (HC3),"(2) + LG, Med, Urbanicity",Private R1,0.0162,0.0143,0.2574,144,0.116
+WLS: weight = source policy years (HC3),"(2) + LG, Med, Urbanicity",Private R2,-0.0297,0.023,0.1974,144,0.116
+WLS: weight = source policy years (HC3),"(2) + LG, Med, Urbanicity",Public R2,0.0116,0.0251,0.6446,144,0.116
+WLS: weight = source policy years (HC3),"(2) + LG, Med, Urbanicity",Land-grant,-0.0243,0.0141,0.086,144,0.116
+WLS: weight = source policy years (HC3),"(2) + LG, Med, Urbanicity",Medical school,0.0177,0.0118,0.1334,144,0.116
+WLS: weight = sentences (HC3),"(2) + LG, Med, Urbanicity",Private R1,0.0211,0.019,0.2667,144,0.1
+WLS: weight = sentences (HC3),"(2) + LG, Med, Urbanicity",Private R2,-0.0004,0.0347,0.9898,144,0.1
+WLS: weight = sentences (HC3),"(2) + LG, Med, Urbanicity",Public R2,0.0377,0.0257,0.1421,144,0.1
+WLS: weight = sentences (HC3),"(2) + LG, Med, Urbanicity",Land-grant,0.004,0.0218,0.8541,144,0.1
+WLS: weight = sentences (HC3),"(2) + LG, Med, Urbanicity",Medical school,0.0205,0.0225,0.3616,144,0.1
+Era-adjusted means: year-demeaned panel (HC3),"(2) + LG, Med, Urbanicity",Private R1,0.0201,0.0119,0.0917,144,0.107
+Era-adjusted means: year-demeaned panel (HC3),"(2) + LG, Med, Urbanicity",Private R2,-0.0298,0.0228,0.1905,144,0.107
+Era-adjusted means: year-demeaned panel (HC3),"(2) + LG, Med, Urbanicity",Public R2,0.0082,0.0198,0.6787,144,0.107
+Era-adjusted means: year-demeaned panel (HC3),"(2) + LG, Med, Urbanicity",Land-grant,-0.0123,0.0126,0.3289,144,0.107
+Era-adjusted means: year-demeaned panel (HC3),"(2) + LG, Med, Urbanicity",Medical school,0.0144,0.0109,0.1891,144,0.107
+Source-text years + year FE (clustered),"(2) + LG, Med, Urbanicity",Private R1,0.0391,0.011,0.0004,452,0.258
+Source-text years + year FE (clustered),"(2) + LG, Med, Urbanicity",Private R2,-0.0028,0.0181,0.8766,452,0.258
+Source-text years + year FE (clustered),"(2) + LG, Med, Urbanicity",Public R2,0.0045,0.0134,0.7387,452,0.258
+Source-text years + year FE (clustered),"(2) + LG, Med, Urbanicity",Land-grant,-0.0085,0.011,0.4406,452,0.258
+Source-text years + year FE (clustered),"(2) + LG, Med, Urbanicity",Medical school,0.0103,0.0105,0.3264,452,0.258
+Source-text years 1980+ + year FE (clustered),"(2) + LG, Med, Urbanicity",Private R1,0.038,0.0108,0.0004,439,0.212
+Source-text years 1980+ + year FE (clustered),"(2) + LG, Med, Urbanicity",Private R2,-0.0032,0.018,0.858,439,0.212
+Source-text years 1980+ + year FE (clustered),"(2) + LG, Med, Urbanicity",Public R2,0.0028,0.0135,0.8349,439,0.212
+Source-text years 1980+ + year FE (clustered),"(2) + LG, Med, Urbanicity",Land-grant,-0.0083,0.011,0.4491,439,0.212
+Source-text years 1980+ + year FE (clustered),"(2) + LG, Med, Urbanicity",Medical school,0.01,0.0105,0.339,439,0.212
+Published (HC3),(3) + Region FE,Private R1,0.0205,0.0136,0.1328,144,0.161
+Published (HC3),(3) + Region FE,Private R2,-0.0347,0.0227,0.1269,144,0.161
+Published (HC3),(3) + Region FE,Public R2,0.0109,0.0184,0.5532,144,0.161
+Published (HC3),(3) + Region FE,Land-grant,-0.0107,0.0133,0.422,144,0.161
+Published (HC3),(3) + Region FE,Medical school,0.0104,0.0106,0.3234,144,0.161
+Common 144 sample (HC3),(3) + Region FE,Private R1,0.0205,0.0136,0.1328,144,0.161
+Common 144 sample (HC3),(3) + Region FE,Private R2,-0.0347,0.0227,0.1269,144,0.161
+Common 144 sample (HC3),(3) + Region FE,Public R2,0.0109,0.0184,0.5532,144,0.161
+Common 144 sample (HC3),(3) + Region FE,Land-grant,-0.0107,0.0133,0.422,144,0.161
+Common 144 sample (HC3),(3) + Region FE,Medical school,0.0104,0.0106,0.3234,144,0.161
+WLS: weight = source policy years (HC3),(3) + Region FE,Private R1,0.0202,0.015,0.1802,144,0.17
+WLS: weight = source policy years (HC3),(3) + Region FE,Private R2,-0.0304,0.0231,0.1894,144,0.17
+WLS: weight = source policy years (HC3),(3) + Region FE,Public R2,0.0154,0.0221,0.4852,144,0.17
+WLS: weight = source policy years (HC3),(3) + Region FE,Land-grant,-0.0207,0.0149,0.1668,144,0.17
+WLS: weight = source policy years (HC3),(3) + Region FE,Medical school,0.0149,0.0109,0.1686,144,0.17
+WLS: weight = sentences (HC3),(3) + Region FE,Private R1,0.0227,0.0228,0.3197,144,0.131
+WLS: weight = sentences (HC3),(3) + Region FE,Private R2,-0.0019,0.0336,0.9558,144,0.131
+WLS: weight = sentences (HC3),(3) + Region FE,Public R2,0.0398,0.0256,0.1204,144,0.131
+WLS: weight = sentences (HC3),(3) + Region FE,Land-grant,0.0048,0.0284,0.8655,144,0.131
+WLS: weight = sentences (HC3),(3) + Region FE,Medical school,0.0155,0.0201,0.4415,144,0.131
+Era-adjusted means: year-demeaned panel (HC3),(3) + Region FE,Private R1,0.0222,0.0136,0.1027,144,0.155
+Era-adjusted means: year-demeaned panel (HC3),(3) + Region FE,Private R2,-0.0326,0.0229,0.1551,144,0.155
+Era-adjusted means: year-demeaned panel (HC3),(3) + Region FE,Public R2,0.0105,0.0178,0.5548,144,0.155
+Era-adjusted means: year-demeaned panel (HC3),(3) + Region FE,Land-grant,-0.0093,0.0133,0.4844,144,0.155
+Era-adjusted means: year-demeaned panel (HC3),(3) + Region FE,Medical school,0.0115,0.0107,0.2817,144,0.155
+Source-text years + year FE (clustered),(3) + Region FE,Private R1,0.0399,0.012,0.0008,452,0.291
+Source-text years + year FE (clustered),(3) + Region FE,Private R2,-0.0059,0.018,0.7441,452,0.291
+Source-text years + year FE (clustered),(3) + Region FE,Public R2,0.0049,0.0115,0.6698,452,0.291
+Source-text years + year FE (clustered),(3) + Region FE,Land-grant,-0.0049,0.0118,0.6797,452,0.291
+Source-text years + year FE (clustered),(3) + Region FE,Medical school,0.0065,0.0092,0.4815,452,0.291
+Source-text years 1980+ + year FE (clustered),(3) + Region FE,Private R1,0.0385,0.012,0.0013,439,0.248
+Source-text years 1980+ + year FE (clustered),(3) + Region FE,Private R2,-0.0071,0.0178,0.6902,439,0.248
+Source-text years 1980+ + year FE (clustered),(3) + Region FE,Public R2,0.0034,0.0118,0.7728,439,0.248
+Source-text years 1980+ + year FE (clustered),(3) + Region FE,Land-grant,-0.0048,0.0118,0.6842,439,0.248
+Source-text years 1980+ + year FE (clustered),(3) + Region FE,Medical school,0.006,0.0092,0.5115,439,0.248
