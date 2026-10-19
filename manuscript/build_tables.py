@@ -107,33 +107,36 @@ def t_sample(panel, sentences):
 
 def t_examples(sentences):
     picks = [
-        ("Supportive", "Inventors are encouraged to consult with the OTT", None),
-        ("Neutral", "Special procedures relevant to these processes", None),
-        ("Restrictive", "As a condition of affiliation with the University, members", None),
-        ("Supportive", "The University intends that the obligation for disclosure shall not unduly", "Same obligation, different framing"),
-        ("Restrictive", "Duty to Disclose Inventions to Univers ity Each Invention must be disclosed", "Same obligation, different framing"),
+        ("Supportive", "Inventors are encouraged to consult with the OTT"),
+        ("Neutral", "Special procedures relevant to these processes"),
+        ("Restrictive", "As a condition of affiliation with the University, members"),
+        ("Supportive", "The University intends that the obligation for disclosure shall not unduly"),
+        ("Restrictive", "Duty to Disclose Inventions to Univers ity Each Invention must be disclosed"),
     ]
-    body = []
-    for i, (cls, start, group) in enumerate(picks):
+    body, provenance = [], []
+    for i, (cls, start) in enumerate(picks):
         row = sentences[sentences["Sentence_Cleaned"].str.startswith(start, na=False)].iloc[0]
+        provenance.append({"Row": i + 1, "Class": cls, "Institution": row["Institution"], "Year": int(row["Year"]),
+                           "File": row["File"], "Sentence_Number": row["Sentence_Number"],
+                           "Sentence": row["Sentence_Cleaned"]})
         text = row["Sentence_Cleaned"]
         if start.startswith("Duty to Disclose"):
             text = "\\ldots\\ " + text.split("Univers ity ", 1)[1] + "."
-        lg = " land-grant," if row["Land-Grant Institution"] == 1 else ""
-        src = f"[{row['Type']},{lg} {int(row['Year'])}]"
         p = row[f"P_{cls.lower()}_calib"]
         if i == 3:
             body.append("\\midrule")
-            body.append("\\multicolumn{3}{l}{\\textit{Same disclosure obligation, different framing}} \\\\")
+            body.append("\\multicolumn{3}{l}{\\textit{Two disclosure provisions, different framing}} \\\\")
         text = text.replace("%", "\\%").replace("&", "\\&")
-        body.append(f"{cls} & ``{text}'' {src} & {p:.3f} \\\\")
+        body.append(f"{cls} & ``{text}'' & {p:.3f} \\\\")
+    pd.DataFrame(provenance).to_csv(REV / "table_examples_provenance.csv", index=False)
     table("tab_examples", "Illustrative Sentence-Level Communicative Stance", "tab:examples",
-          "p{0.13\\textwidth}p{0.67\\textwidth}c",
+          "p{0.13\\textwidth}p{0.70\\textwidth}c",
           ["Class & Illustrative sentence & $\\hat p_{\\text{class}}$ \\\\"], body,
-          "$\\hat p_{\\text{class}}$ is the calibrated model probability assigned to the displayed class. Brackets give "
-          "the institutional type and source year; institutions are identified in the replication package. The last "
-          "two rows both state a disclosure obligation. The examples illustrate the annotation construct; they are not "
-          "an independent accuracy test.")
+          "$\\hat p_{\\text{class}}$ is the calibrated model probability assigned to the displayed class. Source "
+          "institutions and years are recorded in the replication package. The last two rows both concern invention "
+          "disclosure but do not impose identical legal terms; they illustrate how provisions serving the same policy "
+          "function can differ in stance. The examples illustrate the annotation construct; they are not an "
+          "independent accuracy test.")
 
 
 def t_distribution():
