@@ -1,0 +1,30 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Preserved Classifier Configuration}
+\label{tab:classifier}
+\begin{threeparttable}
+\begin{tabular}{lr}
+\toprule
+Parameter & Value \\
+\midrule
+Base model & \texttt{bert-base-uncased} \\
+Transformer layers & 12 \\
+Attention heads & 12 \\
+Hidden size & 768 \\
+Intermediate size & 3,072 \\
+Maximum input length & 256 tokens \\
+Output classes & 3 \\
+Training sentences & 2,458 \\
+Validation sentences & 274 \\
+Total labeled sentences & 2,732 \\
+Temperature parameter & $T = 0.8462$ \\
+Validation accuracy & 0.901 \\
+Validation macro-F1 & 0.894 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item \textit{Notes:} Configuration and metrics are read from the preserved model artifacts in the replication package.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

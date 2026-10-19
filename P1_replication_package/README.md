@@ -197,17 +197,19 @@ These hold university composition fixed across multiple cohort starts, estimate 
 
 ## Revision analyses (October 2026)
 
-`paper_outputs/code/generate_revision_analyses.py` adds the exercises used in the October 2026 revision. It runs last in `pipeline/run_all.py` and can be run alone from the package root:
+`paper_outputs/code/generate_revision_analyses.py` adds the exercises used in the October 2026 manuscript. It runs last in `pipeline/run_all.py` and can be run alone from the package root:
 
 ```bash
 python paper_outputs/code/generate_revision_analyses.py
 ```
 
 Outputs in `paper_outputs/tables/revision_analyses/`:
-- `table5_institutional_robustness.csv`: institutional correlates under the published specifications, Column (1) on the common 144-university sample, WLS (weights = source policy years; = sentences), era-adjusted university means (panel demeaned by calendar year), and source-text university-years with source-year fixed effects and university-clustered SEs.
+- `table5_institutional_robustness.csv`: institutional correlates under the university-mean specifications, Column (1) on the common 144-university sample, WLS (weights = source policy years; = sentences), era-adjusted university means (panel demeaned by calendar year), and source-text university-years with source-year fixed effects and university-clustered SEs.
 - `archive_vintage_by_type.csv`: mean source-policy year by institutional type.
 - `table6_shapley_r2.csv`: Shapley (dominance-analysis) shares of R^2 for Tone, Clarity and Legal Load, which do not depend on the order of entry.
-- `topic_coverage.csv`, `topic_within_trends.csv`, `topic_shift_share.csv`: keyword-based clause topics (ownership/assignment, disclosure, revenue sharing, licensing, sponsored research, copyright/software, administration, definitions), within-topic university-FE trends on source-text years from 1980, and a within-topic vs. composition shift-share for the 63 universities with source text in both 1980--1999 and 2010--2025.
+- `topic_coverage.csv`, `topic_within_trends.csv`, `topic_shift_share.csv`: keyword-based clause topics, within-topic university-FE trends on source-text years from 1980, and a within-topic vs. composition shift-share for the 63 universities with source text in both 1980--1999 and 2010--2025 (universities weighted equally).
+- `deontic_coverage.csv`, `deontic_summary.csv`, `deontic_form_regression.txt`, `deontic_shift_share.csv`: sentences coded by deontic operator (obligation, prohibition, permission, none) and sanction language following the Institutional Grammar (Crawford and Ostrom 1995); stance by rule form; PCSI net of rule form; shift-share over rule forms.
+- `alternative_constructions.csv`, `classifier_confidence_by_decade.csv`: headline results under hard-label PCSI, high-confidence-only PCSI, and framing net of rule form; model confidence by decade.
 
 Figure: `paper_outputs/figures/fig_topic_trends.pdf`.
 
@@ -215,7 +217,8 @@ Key benchmarks:
 - Private R1 vs. public R1, source-text years with year FE, full controls and region FE: about `0.040` (clustered SE about `0.012`); land-grant: about `-0.005` (not significant).
 - Shapley share of explained R^2 attributable to Tone: about `0.89` (panel) and `0.78` (source-text years).
 - Within-university trend, ownership/assignment sentences: about `-0.0003` per year (not significant); all sentences: about `-0.00117`.
-- Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.043`, composition about `-0.004`.
+- Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.028`, topic composition about `-0.003`; within rule forms about `-0.030`, rule-form composition about `+0.002`.
+- Rule form (deontic x sanction cells) explains about `4.8%` of sentence-level variance in stance; PCSI net of rule form correlates about `0.94` with baseline PCSI.
 
 ## Selected manuscript benchmarks reproduced by the strengthened script
 

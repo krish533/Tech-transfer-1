@@ -1,0 +1,29 @@
+PCSI on rule-form shares, source-text university-years (HC3)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:        Mean_Tone_Score   R-squared:                       0.110
+Model:                            OLS   Adj. R-squared:                  0.102
+Method:                 Least Squares   F-statistic:                     12.92
+Date:                Mon, 19 Oct 2026   Prob (F-statistic):           5.41e-10
+Time:                        12:29:55   Log-Likelihood:                 675.14
+No. Observations:                 480   AIC:                            -1340.
+Df Residuals:                     475   BIC:                            -1319.
+Df Model:                           4                                         
+Covariance Type:                  HC3                                         
+===============================================================================
+                  coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------
+Intercept       0.4734      0.013     37.540      0.000       0.449       0.498
+obligation     -0.0637      0.022     -2.953      0.003      -0.106      -0.021
+prohibition    -0.3655      0.064     -5.724      0.000      -0.491      -0.240
+permission      0.0412      0.062      0.659      0.510      -0.081       0.164
+sanction       -0.1768      0.121     -1.465      0.143      -0.413       0.060
+==============================================================================
+Omnibus:                       45.120   Durbin-Watson:                   1.489
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               87.663
+Skew:                           0.561   Prob(JB):                     9.21e-20
+Kurtosis:                       4.768   Cond. No.                         44.0
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity robust (HC3)

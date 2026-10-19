@@ -1,1 +1,10 @@
 P1_replication_package/data/derived/policy_level_indices_primary_1944_2025.csv
+manuscript/*.aux
+manuscript/*.log
+manuscript/*.out
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.toc
+manuscript/*.synctex.gz
+__pycache__/
+P1_replication_package/paper_outputs/tables/strengthened_results/revision_changes.csv

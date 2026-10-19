@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Private-R1 and Land-Grant Coefficients Across Samples and Estimators}
+\label{tab:inst-robust}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+ & Type only & \multicolumn{2}{c}{Full controls} & \\
+\cmidrule(lr){2-2}\cmidrule(lr){3-4}
+ & Private R1 & Private R1 & Land-grant & $N$ \\
+\midrule
+University means & 0.029*** & 0.021 & $-$0.011 & 144 \\
+ & (0.009) & (0.014) & (0.013) & \\
+University means, common sample & 0.029*** & 0.021 & $-$0.011 & 144 \\
+ & (0.009) & (0.014) & (0.013) & \\
+WLS, weight = source policy years & 0.027** & 0.020 & $-$0.021 & 144 \\
+ & (0.010) & (0.015) & (0.015) & \\
+WLS, weight = sentences & 0.021 & 0.023 & 0.005 & 144 \\
+ & (0.014) & (0.023) & (0.028) & \\
+Era-adjusted university means & 0.029*** & 0.022 & $-$0.009 & 144 \\
+ & (0.009) & (0.014) & (0.013) & \\
+Source-text years, year FE & 0.040*** & 0.040*** & $-$0.005 & 452 \\
+ & (0.010) & (0.012) & (0.012) & \\
+Source-text years from 1980, year FE & 0.039*** & 0.038*** & $-$0.005 & 439 \\
+ & (0.010) & (0.012) & (0.012) & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item \textit{Notes:} Dependent variable is PCSI; public R1 is the omitted type. ``Full controls'' adds land-grant, medical-school, and urbanicity indicators and region fixed effects. University-mean rows use HC3 standard errors; the published row uses 150 universities for the type-only column and 144 with full controls. Era-adjusted means subtract each calendar year's cross-sectional mean from the policy-in-force panel before averaging within university. Source-text rows use university-years with directly available policy text, include source-year fixed effects, and cluster standard errors by university. *** $p<0.01$; ** $p<0.05$; * $p<0.10$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
