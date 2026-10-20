@@ -228,18 +228,6 @@ Key benchmarks:
 
 The model weights are stored with Git LFS (`git lfs pull` after cloning). `paper_outputs/code/verify_inference_reproducibility.py --n 2000` rescores a random sample of sentences with the preserved model and temperature and compares the calibrated probabilities and labels with `sentence_scores_canonical.csv`; results are written to `paper_outputs/tables/revision_analyses/inference_reproducibility.csv`. A full rescore of all 87,160 sentences (`pipeline/run_all.py`) takes several hours on a CPU.
 
-### Inter-rater reliability
-
-`paper_outputs/code/compute_interrater_reliability.py` draws a fresh random sample of corpus sentences for double-coding and scores the completed sheet:
-
-```bash
-python paper_outputs/code/compute_interrater_reliability.py draw --n 400 --seed 20261019   # writes data/annotation/irr_coding_sheet.csv
-# two coders fill coder1 and coder2 independently; adjudicate disagreements in "adjudicated"
-python paper_outputs/code/compute_interrater_reliability.py score
-```
-
-Scoring writes `paper_outputs/tables/revision_analyses/interrater_reliability.csv` (raw agreement, Cohen's kappa, class-specific agreement, and classifier agreement and macro-F1 against the adjudicated labels) and `manuscript/irr_numbers.tex`, which the manuscript reads automatically in place of its red placeholders.
-
 ## Selected manuscript benchmarks reproduced by the strengthened script
 
 The code contains explicit sample assertions for the final manuscript sample:
