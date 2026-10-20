@@ -3,9 +3,15 @@
 `irr_coding_sheet.csv` holds 400 sentences drawn at random (seed 20261019) from the 1944–2025 PCSI corpus by
 `paper_outputs/code/compute_interrater_reliability.py draw`. Classifier predictions are deliberately not included.
 
+## Current status
+
+- `coder2` is complete. It was filled by an AI coder (Claude, Anthropic) on 20 October 2026, using only the rubric below and the sentence text, without access to the classifier's predictions. The labels were committed before any comparison with model output.
+- `coder1` must be completed by a trained human coder, working without looking at `coder2`.
+- The manuscript reports the resulting statistics as agreement between a human coder and an AI coder, not between two human coders. For two-human reliability, add a second human coder's labels in a new column and score those two columns instead.
+
 ## Instructions for coders
 
-Two coders work independently and do not discuss sentences until both have finished.
+The human coder works independently: hide or ignore the `coder2` column until `coder1` is complete.
 
 1. Read the full sentence and record its **dominant** communicative stance in your column (`coder1` or `coder2`), using exactly one of:
    - `restrictive`: mandatory assignment, categorical obligations, unilateral institutional authority, prohibitions, sanctions, forfeiture, or compliance demands.
