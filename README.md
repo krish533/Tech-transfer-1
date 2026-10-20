@@ -17,6 +17,7 @@ The paper is in `manuscript/`:
 - `tables/`: every table, generated from the replication outputs
 - `figures/`: figures copied from `P1_replication_package/paper_outputs/figures/`
 - `build_tables.py`: regenerates `tables/` and `figures/`
+- `verification/`: citation register, source-verification status, Carnegie provenance note, and the classifier/human-coding validation boundary
 
 To rebuild everything from the data:
 

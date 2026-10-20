@@ -397,20 +397,18 @@ def t_topics():
             share = f3(cov.loc[r.Topic, "Share of sentences (multi-label)"])
             mean = f3(cov.loc[r.Topic, "Mean sentence score"])
         body.append(f"{topic} & {share} & {mean} & {signed(r[2], 5)} & {se(r.SE, 5)} & {f3(r.p)} \\\\")
-    ss = pd.read_csv(REV / "topic_shift_share.csv").set_index("Primary topic").loc["Total"]
     table("tab_topics", "Within-University Trends in Sentence Stance by Clause Topic, 1980--2025", "tab:topics",
           "lccccc", ["Topic & Share & Mean score & FE trend per year & SE & $p$ \\\\"], body,
           "Each row regresses the university-year mean sentence score within a topic on year and university fixed "
           "effects, using source-text university-years from 1980 and universities observed in at least two such years; "
           "standard errors are clustered by university. Topics are assigned by keyword rules and can overlap; share is "
-          "the fraction of 1980--2025 sentences matching the topic. Shift-share for the 63 universities with source "
-          f"text in both 1980--1999 and 2010--2025: within-topic change {signed(ss['Within contribution'])}, change in "
-          f"topic composition {signed(ss['Composition contribution'])}.")
+          "the fraction of 1980--2025 sentences matching the topic. Within-topic trends allow overlapping keyword "
+          "matches. The exact shift-share calculation instead uses mutually exclusive primary topics and is reported "
+          "separately in Table~\\ref{tab:decomp}.")
 
 
 def t_rule_form():
     cov = pd.read_csv(REV / "deontic_coverage.csv")
-    ss = pd.read_csv(REV / "deontic_shift_share.csv").set_index("Deontic x sanction").loc["Total"]
     summ = pd.read_csv(REV / "deontic_summary.csv").set_index("Statistic")["Value"]
     body = []
     for r in cov.itertuples():
@@ -425,8 +423,48 @@ def t_rule_form():
           "Sanction language (the grammar's ``or else'' component) can co-occur with any form. Restrictive and "
           "supportive shares use the classifier's most likely label. Rule form explains "
           f"{summ['Sentence-level R2 of score on deontic x sanction cells']*100:.1f} percent of sentence-level variance "
-          f"in stance. Shift-share across the eight form-by-sanction cells, 1980--1999 to 2010--2025: within-form "
-          f"change {signed(ss['Within contribution'])}, change in form composition {signed(ss['Composition contribution'])}.")
+          "in stance. The exact 63-university within-cell and composition changes are reported in "
+          "Table~\\ref{tab:decomp}.")
+
+
+def t_decomposition():
+    """Exact shift-share table (Appendix H), from generate_revision_analyses.py."""
+    cols = {}
+    for key, path, idx in [("topic", "topic_shift_share.csv", "Primary topic"),
+                           ("form", "deontic_shift_share.csv", "Deontic x sanction")]:
+        d = pd.read_csv(REV / path).set_index(idx)["Within contribution"]
+        tot = pd.read_csv(REV / path).set_index(idx).loc["Total"]
+        cols[key] = {"early": d["Early mean (university average)"], "late": d["Late mean (university average)"],
+                     "change": d["Observed change"], "within": tot["Within contribution"],
+                     "comp": tot["Composition contribution"]}
+    note = (REV / "topic_shift_share_note.txt").read_text()
+    n_uni = int(note.split(":")[1].split()[0])
+    early_n = int(note.split("early=")[1].split(",")[0])
+    late_n = int(note.split("late=")[1].split()[0])
+    a, b = cols["topic"], cols["form"]
+    six = lambda x: f"${x:.6f}$" if x < 0 else f"{x:.6f}"
+    pct = lambda x, tot: f"{100 * x / tot:.1f}\\%"
+    body = [
+        f"Early period: mean score (1980--1999) & {a['early']:.6f} & {b['early']:.6f} \\\\",
+        f"Late period: mean score (2010--2025) & {a['late']:.6f} & {b['late']:.6f} \\\\",
+        f"\\textbf{{Observed change}} & \\textbf{{{six(a['change'])}}} & \\textbf{{{six(b['change'])}}} \\\\",
+        f"Within-category contribution & {six(a['within'])} & {six(b['within'])} \\\\",
+        f"Composition contribution & {six(a['comp'])} & {six(b['comp'])} \\\\",
+        f"Within-category share of decline & {pct(a['within'], a['change'])} & {pct(b['within'], b['change'])} \\\\",
+        f"Composition share of decline & {pct(a['comp'], a['change'])} & {pct(b['comp'], b['change'])} \\\\",
+        f"Universities with policies in both periods & {n_uni} & {n_uni} \\\\",
+        f"Early and late sentences & {early_n:,}; {late_n:,} & {early_n:,}; {late_n:,} \\\\",
+    ]
+    table("tab_decomposition", "Exact Shift--Share Decompositions of the Modern PCSI Decline", "tab:decomp", "lrr",
+          [" & Exclusive primary topic & Deontic $\\times$ sanction \\\\"], body,
+          "The unit of comparison is a university appearing in both periods; universities are weighted equally. "
+          "Each sentence is assigned to one primary topic by fixed keyword priority, or to one of eight "
+          "deontic-by-sanction cells. Category changes are decomposed within each university using midpoint shares "
+          "and midpoint conditional means, then averaged. If a category is absent in a period, its conditional mean "
+          "is imputed from the observed period, assigning category entry/exit to composition. The university-level "
+          "accounting identity holds to machine precision. These alternative decompositions are not additive and are "
+          "sensitive to the coding rules and missing-category convention. The numbers are descriptive, not causal "
+          "estimates.")
 
 
 def t_alternatives():
@@ -470,6 +508,7 @@ def main() -> None:
     t_inst_robust()
     t_topics()
     t_rule_form()
+    t_decomposition()
     t_alternatives()
     figdir = Path(__file__).resolve().parent / "figures"
     figdir.mkdir(exist_ok=True)

@@ -4,7 +4,9 @@ Each statistic is recomputed from the canonical data with code written
 separately from the analysis scripts: regressions are solved with NumPy least
 squares and within-university transformations rather than statsmodels
 formulas, Shapley shares are computed by enumerating all orders of entry, and
-the shift-share is computed university by university. Only the published
+the shift-share is computed university by university with its own loop.
+(An earlier version of this audit reused the analysis script's aggregate
+shift-share formula and so could not detect that it failed to reconcile.) Only the published
 coding rules (keyword patterns for topics and rule forms) are shared with the
 analysis code, because they define the quantities being audited.
 
@@ -158,31 +160,28 @@ def main() -> None:
     late = s80[s80["Year"].between(2010, 2025)]
     unis = sorted(set(early["Institution"]) & set(late["Institution"]))
     check("Shift-share comparison universities", len(unis), 63, 0)
-    for col, rep_w, rep_c in [("cat", -0.0278, -0.0031), ("form_cell", -0.0300, 0.0018)]:
-        cats = sorted(s80[col].unique())
-        sh = {p: np.zeros(len(cats)) for p in ("e", "l")}
-        mean_sum = {p: np.zeros(len(cats)) for p in ("e", "l")}
-        mean_n = {p: np.zeros(len(cats)) for p in ("e", "l")}
+    # Exact decomposition: split each university's change, then average.
+    check("Observed change, balanced universities", np.mean([
+        late.loc[late["Institution"] == u, "ToneScore_0_1"].mean() - early.loc[early["Institution"] == u, "ToneScore_0_1"].mean()
+        for u in unis]), -0.028816, 0.0000005)
+    for col, rep_w, rep_c in [("cat", -0.022229, -0.006587), ("form_cell", -0.027077, -0.001739)]:
+        W = C = 0.0
         for u in unis:
-            for p, frame in (("e", early), ("l", late)):
-                fu = frame[frame["Institution"] == u]
-                counts = fu[col].value_counts()
-                means = fu.groupby(col)["ToneScore_0_1"].mean()
-                for i, c in enumerate(cats):
-                    sh[p][i] += counts.get(c, 0) / len(fu) / len(unis)
-                    if c in means.index:
-                        mean_sum[p][i] += means[c]
-                        mean_n[p][i] += 1
-        m = {p: np.divide(mean_sum[p], mean_n[p], out=np.full(len(cats), np.nan), where=mean_n[p] > 0) for p in ("e", "l")}
-        ok = ~np.isnan(m["e"]) & ~np.isnan(m["l"])
-        wbar = 0.5 * (sh["e"] + sh["l"])
-        mbar = 0.5 * (m["e"] + m["l"])
-        within = np.nansum((wbar * (m["l"] - m["e"]))[ok])
-        grand = np.nansum((mbar * wbar)[ok])
-        comp = np.nansum(((mbar - grand) * (sh["l"] - sh["e"]))[ok])
+            a, z = early[early["Institution"] == u], late[late["Institution"] == u]
+            wa, wz = a[col].value_counts(normalize=True), z[col].value_counts(normalize=True)
+            ma, mz = a.groupby(col)["ToneScore_0_1"].mean(), z.groupby(col)["ToneScore_0_1"].mean()
+            w_u = c_u = 0.0
+            for k in set(wa.index) | set(wz.index):
+                m0, m1 = ma.get(k, mz.get(k)), mz.get(k, ma.get(k))
+                w_u += 0.5 * (wa.get(k, 0) + wz.get(k, 0)) * (m1 - m0)
+                c_u += 0.5 * (m0 + m1) * (wz.get(k, 0) - wa.get(k, 0))
+            d_u = z["ToneScore_0_1"].mean() - a["ToneScore_0_1"].mean()
+            assert abs(w_u + c_u - d_u) < 1e-11
+            W += w_u / len(unis)
+            C += c_u / len(unis)
         lab = "topics" if col == "cat" else "rule forms"
-        check(f"Shift-share within, {lab}", within, rep_w, 0.00006)
-        check(f"Shift-share composition, {lab}", comp, rep_c, 0.00006)
+        check(f"Shift-share within, {lab}", W, rep_w, 0.0000005)
+        check(f"Shift-share composition, {lab}", C, rep_c, 0.0000005)
 
     # --- Institutional comparison, source-text years with year FE ------------
     d = obs.copy()

@@ -227,43 +227,61 @@ def linguistic_shapley(panel: pd.DataFrame, outdir: Path) -> pd.DataFrame:
 
 
 def shift_share(s: pd.DataFrame, category: str) -> tuple[pd.DataFrame, str]:
-    """Within-category vs composition decomposition of the change in mean
-    sentence score between 1980-1999 and 2010-2025.
+    """Exact within-category vs composition decomposition of the change in
+    university mean sentence score between 1980-1999 and 2010-2025.
 
-    Uses universities with source text in both periods and weights each
-    university equally: shares and category means are computed within
-    university-period and then averaged across universities.
+    Uses the universities with source text in both periods. For each
+    university the change in its mean score is split exactly into
+    sum_k avg_share_k * d(mean_k)  (within) and  sum_k avg_mean_k * d(share_k)
+    (composition), using period-midpoint shares and means. A category absent
+    in one period takes its observed mean in the other period, which assigns
+    entry and exit to composition. University contributions are then averaged
+    with equal weights, so the components sum exactly to the average change.
+    (Multiplying separately averaged shares and means does not reconcile.)
     """
-    s = s[s["Year"].between(1980, 2025)].copy()
-    s["Period"] = np.select([s["Year"].between(1980, 1999), s["Year"].between(2010, 2025)], ["early", "late"], "mid")
-    both = set(s.loc[s["Period"] == "early", "Institution"]) & set(s.loc[s["Period"] == "late", "Institution"])
-    b = s[s["Institution"].isin(both) & s["Period"].isin(["early", "late"])]
-    up = b.groupby(["Institution", "Period", category])["ToneScore_0_1"].agg(["mean", "size"]).reset_index()
-    up["share"] = up["size"] / up.groupby(["Institution", "Period"])["size"].transform("sum")
-    shares = (
-        up.pivot_table(index=["Institution", category], columns="Period", values="share")
-        .reindex(pd.MultiIndex.from_product([sorted(both), sorted(up[category].unique())], names=["Institution", category]))
-        .fillna(0)
-        .groupby(category)
-        .mean()
-    )
-    means = up.groupby(["Period", category])["mean"].mean().unstack(0)
-    cats = shares.index.intersection(means.index)
-    shares, means = shares.loc[cats], means.loc[cats]
-    avg_share = 0.5 * (shares["late"] + shares["early"])
-    centre = 0.5 * (means["late"] + means["early"])
-    within = avg_share * (means["late"] - means["early"])
-    # Centre category means on the grand mean so each composition term reads as
-    # "more sentences of a below-average (or above-average) category".
-    comp = (centre - (centre * avg_share).sum()) * (shares["late"] - shares["early"])
-    out = pd.DataFrame({"Early share": shares["early"].round(3), "Late share": shares["late"].round(3),
-                        "Early mean": means["early"].round(3), "Late mean": means["late"].round(3),
-                        "Within contribution": within.round(4), "Composition contribution": comp.round(4)})
-    out.loc["Total"] = [round(shares["early"].sum(), 3), round(shares["late"].sum(), 3), np.nan, np.nan,
-                        round(within.sum(), 4), round(comp.sum(), 4)]
-    note = (f"Universities with source text in both 1980-1999 and 2010-2025: {len(both)}\n"
+    s = s[s["Year"].between(1980, 1999) | s["Year"].between(2010, 2025)].copy()
+    s["Period"] = np.where(s["Year"] <= 1999, "early", "late")
+    both = sorted(set(s.loc[s["Period"] == "early", "Institution"]) & set(s.loc[s["Period"] == "late", "Institution"]))
+    b = s[s["Institution"].isin(both)]
+    rows, per_uni = [], []
+    for inst, g in b.groupby("Institution"):
+        e, l = g[g["Period"] == "early"], g[g["Period"] == "late"]
+        se, sl = e[category].value_counts(normalize=True), l[category].value_counts(normalize=True)
+        me, ml = e.groupby(category)["ToneScore_0_1"].mean(), l.groupby(category)["ToneScore_0_1"].mean()
+        w_tot = c_tot = 0.0
+        for k in sorted(set(se.index) | set(sl.index)):
+            m0, m1 = me.get(k, ml.get(k)), ml.get(k, me.get(k))
+            s0, s1 = se.get(k, 0.0), sl.get(k, 0.0)
+            w, c = 0.5 * (s0 + s1) * (m1 - m0), 0.5 * (m0 + m1) * (s1 - s0)
+            rows.append({"Institution": inst, category: k, "within": w, "composition": c,
+                         "early_share": s0, "late_share": s1})
+            w_tot, c_tot = w_tot + w, c_tot + c
+        delta = l["ToneScore_0_1"].mean() - e["ToneScore_0_1"].mean()
+        assert abs(delta - w_tot - c_tot) < 1e-11, f"identity fails for {inst}"
+        per_uni.append({"Institution": inst, "early_mean": e["ToneScore_0_1"].mean(),
+                        "late_mean": l["ToneScore_0_1"].mean(), "change": delta,
+                        "within": w_tot, "composition": c_tot})
+    n = len(both)
+    cells = pd.DataFrame(rows)
+    by_cat = cells.groupby(category).agg(early_share=("early_share", "sum"), late_share=("late_share", "sum"),
+                                         within=("within", "sum"), composition=("composition", "sum")) / n
+    out = by_cat.rename(columns={"early_share": "Early share", "late_share": "Late share",
+                                 "within": "Within contribution", "composition": "Composition contribution"})
+    uni = pd.DataFrame(per_uni)
+    out.loc["Total"] = [out["Early share"].sum(), out["Late share"].sum(),
+                        uni["within"].mean(), uni["composition"].mean()]
+    out.loc["Observed change"] = [np.nan, np.nan, np.nan, np.nan]
+    out.loc["Observed change", "Within contribution"] = uni["change"].mean()
+    out.loc["Early mean (university average)"] = [np.nan] * 4
+    out.loc["Early mean (university average)", "Within contribution"] = uni["early_mean"].mean()
+    out.loc["Late mean (university average)"] = [np.nan] * 4
+    out.loc["Late mean (university average)", "Within contribution"] = uni["late_mean"].mean()
+    assert abs(uni["change"].mean() - uni["within"].mean() - uni["composition"].mean()) < 1e-11
+    note = (f"Universities with source text in both 1980-1999 and 2010-2025: {n}\n"
             f"Sentences: early={int((b.Period == 'early').sum())}, late={int((b.Period == 'late').sum())}\n")
+    out.attrs["per_university"] = uni
     return out, note
+
 
 # ---------------------------------------------------------------------------
 # 3. Clause-topic decomposition of the temporal decline
@@ -317,6 +335,7 @@ def topic_decomposition(sentences: pd.DataFrame, outdir: Path, figdir: Path) -> 
     # (c) Shift-share: universities with source text in both 1980-1999 and 2010-2025.
     ss, note = shift_share(s, "Primary topic")
     ss.to_csv(outdir / "topic_shift_share.csv")
+    ss.attrs["per_university"].to_csv(outdir / "topic_shift_share_by_university.csv", index=False)
     (outdir / "topic_shift_share_note.txt").write_text(note)
 
     # Figure: within-topic trends with 95% CIs.
@@ -433,6 +452,7 @@ def deontic_analysis(sentences: pd.DataFrame, panel: pd.DataFrame, outdir: Path)
     # (c) Shift-share over rule forms.
     ss, note = shift_share(s, "Deontic x sanction")
     ss.to_csv(outdir / "deontic_shift_share.csv")
+    ss.attrs["per_university"].to_csv(outdir / "deontic_shift_share_by_university.csv", index=False)
     (outdir / "deontic_shift_share_note.txt").write_text(note)
 
     summary = pd.DataFrame(
