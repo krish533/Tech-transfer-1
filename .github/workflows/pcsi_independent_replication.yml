@@ -1,0 +1,39 @@
+name: Independent PCSI replication audit
+
+on:
+  push:
+    branches:
+      - audit-pcsi-shiftshare-20261019
+
+permissions:
+  contents: read
+
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out full canonical input CSV
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
+      - name: Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducibility dependencies
+        run: python -m pip install pandas numpy scipy statsmodels matplotlib
+      - name: Independently reproduce PCSI and reconcile the two shift-share decompositions
+        run: |
+          set -o pipefail
+          python audit/pcsi/independent_replication.py | tee pcsi_audit_run.log
+      - name: Preserve the full audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-pcsi-audit-20261019
+          if-no-files-found: warn
+          path: |
+            pcsi_audit_run.log
+            P1_replication_package/paper_outputs/tables/independent_pcsi_audit/
