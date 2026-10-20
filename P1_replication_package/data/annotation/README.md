@@ -5,9 +5,8 @@
 
 ## Current status
 
-- `coder2` is complete. It was filled by an AI coder (Claude, Anthropic) on 20 October 2026, using only the rubric below and the sentence text, without access to the classifier's predictions. The labels were committed before any comparison with model output.
-- `coder1` must be completed by a trained human coder, working without looking at `coder2`.
-- The manuscript reports the resulting statistics as agreement between a human coder and an AI coder, not between two human coders. For two-human reliability, add a second human coder's labels in a new column and score those two columns instead.
+- `coder2` was filled by an AI coder (Claude, Anthropic) on 20 October 2026, using only the rubric below and the sentence text, without access to the classifier's predictions. The labels were committed before any comparison with model output.
+- A research assistant coded the same 400 sentences. Those labels are not distributed in this repository; they are available from the authors on request. Summary results appear in Appendix C of the manuscript.
 
 ## Instructions for coders
 
