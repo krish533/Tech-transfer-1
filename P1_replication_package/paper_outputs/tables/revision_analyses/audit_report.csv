@@ -28,10 +28,11 @@ Within-topic FE trend: Revenue sharing,-0.00169,-0.001691,5e-06,True
 Within-topic FE trend: Administration & disputes,-0.00134,-0.001342,5e-06,True
 Share of 1980+ sentences matching a topic (%),59.1,59.135636,0.05,True
 Shift-share comparison universities,63.0,63.0,0.0,True
-"Shift-share within, topics",-0.0278,-0.027806,6e-05,True
-"Shift-share composition, topics",-0.0031,-0.003128,6e-05,True
-"Shift-share within, rule forms",-0.03,-0.030017,6e-05,True
-"Shift-share composition, rule forms",0.0018,0.001839,6e-05,True
+"Observed change, balanced universities",-0.028816,-0.028816,5e-07,True
+"Shift-share within, topics",-0.022229,-0.022229,5e-07,True
+"Shift-share composition, topics",-0.006587,-0.006587,5e-07,True
+"Shift-share within, rule forms",-0.027077,-0.027077,5e-07,True
+"Shift-share composition, rule forms",-0.001739,-0.001739,5e-07,True
 "Private R1, source-text years with year FE",0.04,0.039931,0.0005,True
 "Land-grant, source-text years with year FE",-0.005,-0.004874,0.0005,True
 "Observations, source-text years with year FE",452.0,452.0,0.0,True

@@ -1,0 +1,11 @@
+# Carnegie source audit: official 2021 and 2025 methods vs. study variable
+
+**Verified from primary classification authority:** Carnegie/ACE publishes separate methodologies for the 2021 Basic Classification and the 2025 Research Activity Designations.
+
+* 2021 doctoral-university research activity: multiple research expenditure, staffing and doctoral-conferral indicators assembled into research indices, with an R1/R2 distinction. [Official 2021 Basic Classification](https://carnegieclassifications.acenet.edu/carnegie-classification/classification-methodology/2021-basic-classification/).
+* 2025 research activity: R1 requires >= $50 million annual R&D plus >=70 research doctorates; R2 requires >= $5 million annual R&D plus >=20 research doctorates, using the higher of the three-year average and most recent-year data. These designations are separate from the redesigned 2025 Institutional Classification. [Official 2025 Research Activity Designations](https://carnegieclassifications.acenet.edu/carnegie-classification/classification-methodology/2025-research-activity-designations/).
+* The official [Carnegie Data Center](https://carnegieclassifications.acenet.edu/data-center/) makes the 2021 and 2025 public files available for an independent crosswalk (after precise institution IDs are established).
+
+**Checked in code:** The PCSI replication data include `Carnegie R1` as a binary column. Its construction applies the Type label `Private/Public R1` for 1 and `Private/Public R2` for non-1. Thus the operational `R2` category is not *independently verified* as the official Carnegie R2 population.
+
+**Not recovered:** original classification vintage, provider/merged institution IDs, categorical crosswalk, and whether all non-R1 institutions are genuine Carnegie R2. Consequently, the paper says `R2` is an operational group and does **not** cite the 2025 thresholds as if they defined the released field. This is the maximum defensible provenance conclusion without the original institutional crosswalk. Replacing the flag with 2025 designation data would constitute a **new empirical specification**, requiring explicit, validated matches and re-estimation rather than silent recoding.

@@ -217,12 +217,12 @@ Key benchmarks:
 - Private R1 vs. public R1, source-text years with year FE, full controls and region FE: about `0.040` (clustered SE about `0.012`); land-grant: about `-0.005` (not significant).
 - Shapley share of explained R^2 attributable to Tone: about `0.89` (panel) and `0.78` (source-text years).
 - Within-university trend, ownership/assignment sentences: about `-0.0003` per year (not significant); all sentences: about `-0.00117`.
-- Shift-share, 1980--1999 to 2010--2025: within-topic change about `-0.028`, topic composition about `-0.003`; within rule forms about `-0.030`, rule-form composition about `+0.002`.
+- Exact shift-share, 1980--1999 to 2010--2025 (63 universities, decomposed university by university then averaged): observed change `-0.0288`; within topics `-0.0222` (77%), topic composition `-0.0066` (23%); within rule forms `-0.0271` (94%), rule-form composition `-0.0017` (6%). Per-university contributions are in `topic_shift_share_by_university.csv` and `deontic_shift_share_by_university.csv`.
 - Rule form (deontic x sanction cells) explains about `4.8%` of sentence-level variance in stance; PCSI net of rule form correlates about `0.94` with baseline PCSI.
 
 ### Independent audit of manuscript numbers
 
-`paper_outputs/code/audit_manuscript_numbers.py` recomputes 38 numbers reported in the manuscript (sample counts, distribution, variance shares, Shapley shares, rule-form statistics, within-topic trends, both shift-share decompositions, the within-year private-R1 coefficient, and the alternative constructions) with code written separately from the analysis scripts, and compares each with the reported value. It writes `paper_outputs/tables/revision_analyses/audit_report.csv` and exits with an error if any check fails.
+`paper_outputs/code/audit_manuscript_numbers.py` recomputes 39 numbers reported in the manuscript (sample counts, distribution, variance shares, Shapley shares, rule-form statistics, within-topic trends, both shift-share decompositions, the within-year private-R1 coefficient, and the alternative constructions) with code written separately from the analysis scripts, and compares each with the reported value. It writes `paper_outputs/tables/revision_analyses/audit_report.csv` and exits with an error if any check fails.
 
 ### Verifying classifier inference
 
