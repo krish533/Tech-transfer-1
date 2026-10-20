@@ -28,6 +28,7 @@ jobs:
         run: |
           set -o pipefail
           python audit/pcsi/independent_replication.py | tee pcsi_audit_run.log
+          python audit/pcsi/secondary_checks.py | tee pcsi_secondary_run.log
       - name: Preserve the full audit outputs
         if: always()
         uses: actions/upload-artifact@v4
@@ -36,4 +37,5 @@ jobs:
           if-no-files-found: warn
           path: |
             pcsi_audit_run.log
+            pcsi_secondary_run.log
             P1_replication_package/paper_outputs/tables/independent_pcsi_audit/
